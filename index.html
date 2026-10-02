@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ColorWalk</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f3ef;color:#171717;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
+.app{max-width:720px;margin:auto;min-height:100vh;padding-bottom:28px}.top{padding:22px 18px 12px;display:flex;align-items:center;justify-content:space-between}.brand{font-size:28px;font-weight:800;letter-spacing:-.8px}.sub{font-size:12px;color:#777;margin-top:2px}.icon{border:0;background:#fff;border-radius:14px;width:44px;height:44px;font-size:20px;box-shadow:0 2px 12px #0001}
+.tabs{display:flex;gap:8px;padding:8px 18px}.tab{flex:1;padding:12px;border:1px solid #ddd;border-radius:14px;background:#fff;font-weight:700}.tab.on{background:#171717;color:#fff}
+.camera{margin:10px 18px 0;background:#111;border-radius:26px;overflow:hidden;position:relative;aspect-ratio:3/4}.camera video{width:100%;height:100%;object-fit:cover;display:block}.shade{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.ring{width:120px;height:120px;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #0006,0 0 30px #0005}.hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:#0009;color:#fff;padding:7px 12px;border-radius:99px;font-size:12px;white-space:nowrap}
+.row{display:flex;gap:10px;padding:14px 18px 0}.card{flex:1;background:#fff;border-radius:20px;padding:12px;box-shadow:0 2px 12px #0000000d}.swatch{height:68px;border-radius:14px;margin-bottom:10px}.name{font-weight:800;font-size:15px}.hex{font:12px ui-monospace,monospace;color:#777;margin-top:3px}.focus{outline:3px solid #171717;outline-offset:2px}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 18px}.result{background:#fff;border-radius:18px;padding:14px}.result h3{font-size:13px;margin:0 0 8px;color:#777}.pct{font-size:30px;font-weight:850}.dist{font-size:12px;color:#777;margin-top:3px}
+.controls{display:flex;gap:8px;padding:4px 18px}.btn{flex:1;border:0;border-radius:15px;padding:13px;background:#171717;color:#fff;font-weight:750}.btn.alt{background:#fff;color:#171717;border:1px solid #ddd}.btn:disabled{opacity:.4}
+.challenge{margin:14px 18px;background:#fff;border-radius:20px;padding:15px}.challengeTop{display:flex;justify-content:space-between;align-items:center}.challengeColor{height:54px;border-radius:13px;margin-top:10px}.small{font-size:12px;color:#777}.section{padding:18px}.section h2{font-size:18px;margin:0 0 10px}.find{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px;margin-top:8px}.mini{width:42px;height:42px;border-radius:10px}.empty{color:#888;font-size:13px;background:#fff;border-radius:14px;padding:15px}
+.drawer{position:fixed;inset:0;background:#0007;display:none;align-items:flex-end;z-index:10}.drawer.open{display:flex}.sheet{width:100%;max-height:88vh;overflow:auto;background:#f5f3ef;border-radius:26px 26px 0 0;padding:18px}.sheetHead{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#fff;border-radius:12px;padding:9px 12px}.input{width:100%;border:1px solid #ddd;border-radius:13px;padding:12px;background:#fff;font-size:15px;margin:10px 0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.colorOpt{border:0;border-radius:12px;overflow:hidden;background:#fff;text-align:left;padding:0}.colorOpt .c{height:42px}.colorOpt span{display:block;padding:7px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.picker{height:150px;border-radius:14px;background:linear-gradient(to bottom,transparent,#000),linear-gradient(to right,#fff,transparent),hsl(0 100% 50%);position:relative;overflow:hidden}.pickDot{position:absolute;width:18px;height:18px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #0008;left:80%;top:20%}.hue{width:100%;margin:10px 0}.rgb{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.saveRow{display:flex;gap:8px}.note{font-size:11px;color:#888;padding:12px 18px 0;text-align:center}
+@media(min-width:650px){.app{padding-top:20px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top"><div><div class="brand">ColorWalk</div><div class="sub">Walk around. Find a color.</div></div><button class="icon" id="randomBtn">✦</button></header>
+
+  <div class="tabs">
+    <button class="tab on" id="bothTab">Compare Both</button>
+    <button class="tab" id="focusTab">Focus One</button>
+  </div>
+
+  <div class="camera">
+    <video id="video" autoplay playsinline muted></video>
+    <div class="shade"><div class="ring"></div></div>
+    <div class="hint" id="hint">Allow camera access, then point at a color</div>
+  </div>
+
+  <div class="row">
+    <div class="card" id="card0"><div class="swatch" id="sw0"></div><div class="name" id="name0"></div><div class="hex" id="hex0"></div></div>
+    <div class="card" id="card1"><div class="swatch" id="sw1"></div><div class="name" id="name1"></div><div class="hex" id="hex1"></div></div>
+  </div>
+
+  <div class="results">
+    <div class="result" id="res0"><h3 id="rname0"></h3><div class="pct" id="pct0">—%</div><div class="dist" id="dist0">Distance —</div></div>
+    <div class="result" id="res1"><h3 id="rname1"></h3><div class="pct" id="pct1">—%</div><div class="dist" id="dist1">Distance —</div></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn alt" id="edit0">Color 1</button>
+    <button class="btn alt" id="edit1">Color 2</button>
+    <button class="btn" id="freeze">Freeze</button>
+    <button class="btn" id="save">Save Find</button>
+  </div>
+
+  <div class="challenge">
+    <div class="challengeTop"><strong>Random Color Challenge</strong><button class="btn alt" id="newChallenge" style="flex:0;padding:9px 12px">New</button></div>
+    <div class="small">Try to find something around you that matches this color.</div>
+    <div class="challengeColor" id="challengeColor"></div>
+    <div style="margin-top:8px"><strong id="challengeName">—</strong> <span class="small" id="challengeHex"></span></div>
+  </div>
+
+  <section class="section"><h2>My Finds</h2><div id="history"></div><button class="btn alt" id="clearHistory" style="margin-top:10px;width:100%">Clear History</button></section>
+  <div class="note">ColorWalk is a playful visual matching tool — not a calibrated colorimeter.</div>
+</div>
+
+<div class="drawer" id="drawer">
+  <div class="sheet">
+    <div class="sheetHead"><h2 id="sheetTitle">Choose Color</h2><button class="close" id="close">Done</button></div>
+    <input class="input" id="search" placeholder="Search a standard color name…">
+    <div class="grid" id="colorGrid"></div>
+    <h3>Custom color</h3>
+    <input class="input" id="hexInput" placeholder="#687A45">
+    <div class="rgb"><input class="input" id="ri" type="number" min="0" max="255" placeholder="R"><input class="input" id="gi" type="number" min="0" max="255" placeholder="G"><input class="input" id="bi" type="number" min="0" max="255" placeholder="B"></div>
+    <h3>Color Picker</h3>
+    <div class="picker" id="picker"><div class="pickDot" id="pickDot"></div></div>
+    <input class="hue" id="hue" type="range" min="0" max="360" value="0">
+    <div class="saveRow"><button class="btn alt" id="applyRGB">Use RGB</button><button class="btn" id="applyHex">Use HEX</button></div>
+  </div>
+</div>
+<canvas id="canvas" style="display:none"></canvas>
+
+<script>
+const colors=[
+["Black","#000000"],["White","#FFFFFF"],["Red","#FF0000"],["Green","#008000"],["Blue","#0000FF"],["Yellow","#FFFF00"],["Orange","#FFA500"],["Purple","#800080"],["Pink","#FFC0CB"],["Brown","#A52A2A"],["Gray","#808080"],["Navy","#000080"],["Teal","#008080"],["Olive","#808000"],["Lime","#00FF00"],["Aqua","#00FFFF"],["Maroon","#800000"],["Silver","#C0C0C0"],["Gold","#FFD700"],["Ivory","#FFFFF0"],["Coral","#FF7F50"],["Tomato","#FF6347"],["Salmon","#FA8072"],["Crimson","#DC143C"],["Burgundy","#800020"],["Brick Red","#CB4154"],["Rust","#B7410E"],["Rust Red","#A34F38"],["Terracotta","#E2725B"],["Ochre","#CC7722"],["Moss Green","#687A45"],["Forest Green","#228B22"],["Forest Moss","#556B2F"],["Sage","#9CAF88"],["Mint","#98FF98"],["Emerald","#50C878"],["Jade","#00A86B"],["Sky Blue","#87CEEB"],["Cobalt Blue","#0047AB"],["Indigo","#4B0082"],["Lavender","#E6E6FA"],["Plum","#DDA0DD"],["Mustard","#FFDB58"],["Beige","#F5F5DC"],["Cream","#FFFDD0"],["Charcoal","#36454F"]
+];
+let targets=[{name:"Moss Green",hex:"#687A45"},{name:"Rust Red",hex:"#A34F38"}],mode="both",focus=0,stream=null,frozen=false,editing=0,challenge=null;
+const $=id=>document.getElementById(id);
+function hexToRgb(h){h=h.replace("#","");if(h.length===3)h=h.split("").map(x=>x+x).join("");return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
+function rgbToHex(r,g,b){return "#"+[r,g,b].map(x=>Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,"0")).join("").toUpperCase()}
+function setTarget(i,name,hex){targets[i]={name,hex:hex.toUpperCase()};renderTargets()}
+function renderTargets(){targets.forEach((t,i)=>{$("sw"+i).style.background=t.hex;$("name"+i).textContent=t.name;$("hex"+i).textContent=t.hex;$("rname"+i).textContent=t.name});$("card0").classList.toggle("focus",mode==="focus"&&focus===0);$("card1").classList.toggle("focus",mode==="focus"&&focus===1);$("res0").style.display=mode==="both"||focus===0?"block":"none";$("res1").style.display=mode==="both"||focus===1?"block":"none")}
+function rgbToOklab(rgb){let [r,g,b]=rgb.map(v=>v/255);r=r<=.04045?r/12.92:Math.pow((r+.055)/1.055,2.4);g=g<=.04045?g/12.92:Math.pow((g+.055)/1.055,2.4);b=b<=.04045?b/12.92:Math.pow((b+.055)/1.055,2.4);let l=.4122214708*r+.5363325363*g+.0514459929*b,m=.2119034982*r+.6806995451*g+.1073969566*b,s=.0883024619*r+.2817188376*g+.6299787005*b;l=Math.cbrt(l);m=Math.cbrt(m);s=Math.cbrt(s);return [.2104542553*l+.793617785*m-.0040720468*s,1.9779984951*l-2.428592205*m+.4505937099*s,.0259040371*l+.7827717662*m-.808675766*s]}
+function distance(a,b){let A=rgbToOklab(a),B=rgbToOklab(b);return Math.sqrt((A[0]-B[0])**2+(A[1]-B[1])**2+(A[2]-B[2])**2)}
+function match(a,b){return Math.max(0,Math.min(100,100*(1-distance(a,b)/.35)))}
+async function startCamera(){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false});$("video").srcObject=stream;$("hint").textContent="Point the center circle at a color"}catch(e){$("hint").textContent="Camera access was not allowed"}}
+function sample(){if(frozen||!stream)return;let v=$("video"),c=$("canvas"),ctx=c.getContext("2d",{willReadFrequently:true});let s=Math.min(v.videoWidth,v.videoHeight)*.16;if(!s)return;c.width=Math.round(s*2);c.height=Math.round(s*2);ctx.drawImage(v,(v.videoWidth-s)/2,(v.videoHeight-s)/2,s,s,0,0,c.width,c.height);let d=ctx.getImageData(0,0,c.width,c.height).data,sum=[0,0,0],n=0,cx=c.width/2,cy=c.height/2,r=c.width*.48;for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){if((x-cx)**2+(y-cy)**2<r*r){let p=(y*c.width+x)*4;sum[0]+=d[p];sum[1]+=d[p+1];sum[2]+=d[p+2];n++}}let rgb=sum.map(x=>x/n);targets.forEach((t,i)=>{let tar=hexToRgb(t.hex),dist=distance(rgb,tar);$("pct"+i).textContent=match(rgb,tar).toFixed(0)+"%";$("dist"+i).textContent="Distance "+dist.toFixed(3)});}
+function openDrawer(i){editing=i;$("sheetTitle").textContent="Choose Color "+(i+1);$("drawer").classList.add("open");$("search").value="";renderColorGrid()}
+function renderColorGrid(){let q=$("search").value.toLowerCase();$("colorGrid").innerHTML="";colors.filter(x=>x[0].toLowerCase().includes(q)).forEach(([n,h])=>{let b=document.createElement("button");b.className="colorOpt";b.innerHTML='<div class="c" style="background:'+h+'"></div><span>'+n+"</span>";b.onclick=()=>{setTarget(editing,n,h);$("drawer").classList.remove("open")};$("colorGrid").appendChild(b)})}
+function hsvToHex(h,s,v){let f=(n,k=(n+h/60)%6)=>v-v*s*Math.max(Math.min(k,4-k,1),0),r=f(5),g=f(3),b=f(1);return rgbToHex(r*255,g*255,b*255)}
+function newChallenge(){challenge=colors[Math.floor(Math.random()*colors.length)];$("challengeColor").style.background=challenge[1];$("challengeName").textContent=challenge[0];$("challengeHex").textContent=challenge[1]}
+function historyRender(){let h=JSON.parse(localStorage.getItem("colorwalk-history")||"[]");$("history").innerHTML=h.length?h.map(x=>'<div class="find"><div class="mini" style="background:'+x.actual+'"></div><div><strong>'+x.target+'</strong><div class="small">'+x.actual+" · "+x.match+"% match · "+x.time+"</div></div></div>").join(""):'<div class="empty">No saved finds yet.</div>'}
+$("bothTab").onclick=()=>{mode="both";$("bothTab").classList.add("on");$("focusTab").classList.remove("on");renderTargets()}
+$("focusTab").onclick=()=>{mode="focus";$("focusTab").classList.add("on");$("bothTab").classList.remove("on");renderTargets()}
+$("card0").onclick=()=>{focus=0;renderTargets()};$("card1").onclick=()=>{focus=1;renderTargets()};$("edit0").onclick=()=>openDrawer(0);$("edit1").onclick=()=>openDrawer(1);
+$("close").onclick=()=>$("drawer").classList.remove("open");$("search").oninput=renderColorGrid;
+$("applyHex").onclick=()=>{let h=$("hexInput").value.trim();if(/^#?[0-9a-f]{6}$/i.test(h)){h=h.startsWith("#")?h:"#"+h;setTarget(editing,"Custom",h);$("drawer").classList.remove("open")}}
+$("applyRGB").onclick=()=>{let r=+$("ri").value,g=+$("gi").value,b=+$("bi").value;if([r,g,b].every(x=>x>=0&&x<=255)){setTarget(editing,"Custom",rgbToHex(r,g,b));$("drawer").classList.remove("open")}}
+$("picker").onclick=e=>{let r=e.currentTarget.getBoundingClientRect(),s=(e.clientX-r.left)/r.width,v=1-(e.clientY-r.top)/r.height,h=+$("hue").value;let hex=hsvToHex(h,s,v);setTarget(editing,"Custom",hex);$("hexInput").value=hex;$("ri").value=hexToRgb(hex)[0];$("gi").value=hexToRgb(hex)[1];$("bi").value=hexToRgb(hex)[2];$("pickDot").style.left=(s*100)+"%";$("pickDot").style.top=((1-v)*100)+"%"}
+$("hue").oninput=e=>$("picker").style.background="linear-gradient(to bottom,transparent,#000),linear-gradient(to right,#fff,transparent),hsl("+e.target.value+" 100% 50%)";
+$("freeze").onclick=()=>{frozen=!frozen;$("freeze").textContent=frozen?"Continue":"Freeze"};
+$("save").onclick=()=>{let h=JSON.parse(localStorage.getItem("colorwalk-history")||"[]"),idx=mode==="focus"?focus:0;let actual=$("pct"+idx).textContent==="—%"?"":$("pct"+idx).textContent.replace("%","");if(!actual)return;let now=new Date();let rec={target:targets[idx].name,actual:targets[idx].hex,match:actual,time:now.toLocaleString()};h.unshift(rec);localStorage.setItem("colorwalk-history",JSON.stringify(h.slice(0,50)));historyRender()}
+$("clearHistory").onclick=()=>{localStorage.removeItem("colorwalk-history");historyRender()};$("newChallenge").onclick=newChallenge;$("randomBtn").onclick=newChallenge;
+renderTargets();renderColorGrid();historyRender();newChallenge();startCamera();setInterval(sample,350);
+</script>
+</body>
+</html>
