@@ -1,1117 +1,913 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#172019">
-<title>ColorWalk 3.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#f5f3ed">
+<title>ColorWalk</title>
 
 <style>
 :root{
-  --bg:#f4f1e8;
-  --ink:#1d2a20;
-  --muted:#687568;
-  --green:#314d35;
-  --card:#fffdf7;
-  --line:#e2e3d8;
+  --bg:#f5f3ed;
+  --card:#ffffff;
+  --ink:#252821;
+  --muted:#77796f;
+  --line:#e7e6df;
+  --green:#687A45;
+  --red:#A34F38;
+  --accent:#465d37;
 }
 *{box-sizing:border-box}
 body{
   margin:0;
   background:var(--bg);
   color:var(--ink);
-  font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-header{
-  background:#172019;
-  color:#f7f4e9;
-  padding:18px 16px 20px;
-  border-radius:0 0 22px 22px;
-}
-.top,main{max-width:760px;margin:auto}
-.eyebrow{
-  font-size:11px;
-  letter-spacing:.14em;
-  color:#c3d4ae;
-}
-h1{font-size:30px;line-height:1.05;margin:7px 0}
-.sub{color:#d0d8cc;margin:7px 0 0;font-size:14px}
-
-main{
-  padding:10px 10px 28px;
-  display:grid;
-  gap:8px;
-}
-.card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:12px;
-  box-shadow:0 4px 14px #263b2810;
-}
-h2{font-size:16px;margin:0 0 10px}
-h3{font-size:14px;margin:9px 0}
-.muted{color:var(--muted);font-size:12px}
-
 button,input,select{font:inherit}
 button{
   border:0;
   border-radius:12px;
-  padding:11px 12px;
-  background:var(--green);
-  color:white;
-  font-weight:650;
+  padding:12px 15px;
+  background:#e9e9e1;
+  color:var(--ink);
+  font-weight:600;
   cursor:pointer;
-  min-height:44px;
-  font-size:14px;
 }
-button.secondary{
-  background:#e9eddf;
+button:active{transform:scale(.98)}
+button.primary{background:var(--accent);color:white}
+button:disabled{opacity:.4}
+input,select{
+  min-width:0;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:11px;
+  background:#fff;
   color:var(--ink);
 }
-button.active{
-  background:var(--green);
-  color:white;
+.app{
+  width:min(100%,650px);
+  margin:auto;
+  padding:16px 14px 35px;
 }
-button:disabled{opacity:.4;cursor:not-allowed}
-
-.row{
+header{
   display:flex;
-  gap:8px;
-  flex-wrap:wrap;
   align-items:center;
+  justify-content:space-between;
+  margin-bottom:14px;
 }
-.row>*{flex:1;min-width:0}
-
-.camera{
-  position:relative;
-  overflow:hidden;
-  background:#111;
-  border-radius:13px;
+.logo{
+  font-size:24px;
+  font-weight:800;
+  letter-spacing:-1px;
+}
+.logo span{color:var(--green)}
+.subtitle{font-size:12px;color:var(--muted)}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:12px;
+  box-shadow:0 3px 14px #25282108;
+}
+.section-title{
+  font-size:14px;
+  font-weight:750;
+  margin-bottom:10px;
+}
+.camera-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+}
+.status{
+  font-size:11px;
+  color:var(--muted);
+  overflow-wrap:anywhere;
+}
+.camera-box{
+  width:100%;
   aspect-ratio:16/9;
-  display:grid;
-  place-items:center;
-  color:white;
+  background:#171916;
+  border-radius:13px;
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
-video{
+#video{
   width:100%;
   height:100%;
   object-fit:cover;
   display:none;
 }
+.camera-placeholder{
+  color:#c7c9c0;
+  text-align:center;
+  font-size:13px;
+  line-height:1.7;
+  padding:20px;
+}
 .aim{
-  position:absolute;
-  width:42px;
-  height:42px;
-  border:1.5px solid white;
-  border-radius:50%;
-  box-shadow:0 0 0 999px #0002;
-  pointer-events:none;
   display:none;
+  position:absolute;
+  width:25px;
+  height:25px;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
+  pointer-events:none;
 }
-.aim:after{
+.aim:before,.aim:after{
   content:"";
   position:absolute;
-  width:4px;
-  height:4px;
   background:white;
-  border-radius:50%;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
+  box-shadow:0 0 3px #000;
 }
-.camera-note{
-  position:absolute;
-  bottom:8px;
-  left:10px;
-  right:10px;
-  text-align:center;
-  font-size:11px;
-  color:white;
-  text-shadow:0 1px 4px #0008;
-  pointer-events:none;
-}
-#cameraPrompt{
-  text-align:center;
-  padding:10px;
-  font-size:14px;
-}
-
-.swatches{
+.aim:before{width:25px;height:1px;top:12px}
+.aim:after{height:25px;width:1px;left:12px}
+.camera-controls{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:8px;
+  margin-top:10px;
+}
+.camera-controls button{padding:11px 7px;font-size:13px}
+.camera-select-row{
+  display:flex;
+  gap:7px;
+  margin-top:9px;
+}
+.camera-select-row select{flex:1;font-size:12px}
+.camera-select-row button{font-size:12px;padding:10px}
+.camera-info{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:7px;
+  line-height:1.5;
+}
+.mode-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+.mode-row button.active{
+  background:var(--accent);
+  color:white;
+}
+.targets{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.target{
+  min-width:0;
+  border:1px solid var(--line);
+  border-radius:13px;
+  overflow:hidden;
 }
 .swatch{
-  height:62px;
-  border-radius:11px;
-  border:1px solid #0001;
-  display:flex;
-  align-items:end;
-  padding:8px;
-  color:white;
-  text-shadow:0 1px 4px #0008;
-  font-weight:700;
+  height:86px;
+  width:100%;
+  background:#687A45;
+}
+.target-body{padding:10px}
+.target-name{font-weight:750;font-size:13px;margin-bottom:7px}
+.target input{width:100%;font-size:12px;padding:8px}
+.rgb{font-size:11px;color:var(--muted);margin-top:6px}
+.result-area{margin-top:12px}
+.result{
+  border-radius:12px;
+  padding:12px;
+  background:#f2f2ed;
   font-size:13px;
+  line-height:1.55;
 }
-.mode{
+.result strong{font-size:17px}
+.result.good{background:#e6efdf}
+.result.bad{background:#f5e9e3}
+.result-row{
   display:flex;
-  background:#edf0e6;
-  padding:4px;
-  border-radius:12px;
-  gap:4px;
+  gap:8px;
+  margin-top:9px;
 }
-.mode button{
-  flex:1;
-  background:transparent;
-  color:var(--muted);
-  padding:9px 5px;
+.result-row button{flex:1;font-size:12px;padding:10px 5px}
+.focus-buttons{
+  display:flex;
+  gap:7px;
+  margin-top:10px;
 }
-.mode button.active{
-  background:white;
-  color:var(--ink);
-  box-shadow:0 2px 7px #0001;
-}
-.metric{
-  background:#f0f2e9;
-  border-radius:12px;
-  padding:10px;
-}
-.metric strong{
-  font-size:22px;
-  display:block;
-}
-.meter{
-  height:7px;
-  background:#dfe4d6;
-  border-radius:20px;
-  overflow:hidden;
-  margin-top:7px;
-}
-.meter i{
-  display:block;
-  height:100%;
-  background:#66844c;
-  width:0;
-}
-.resultgrid{
+.focus-buttons button{flex:1;font-size:12px;padding:9px 5px}
+.focus-buttons button.active{background:#dfe8d6}
+.utility-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:8px;
+  gap:9px;
 }
-.targetline{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-.dot{
-  width:35px;
-  height:35px;
-  border-radius:10px;
-  border:1px solid #0002;
-  flex:none;
-}
-input[type=text],input[type=number],select{
+.utility-grid button{font-size:12px}
+#colorWheel{
+  display:block;
   width:100%;
-  min-width:0;
-  padding:11px;
-  border:1px solid var(--line);
-  border-radius:11px;
-  background:white;
-  color:var(--ink);
+  max-width:260px;
+  margin:5px auto;
+  touch-action:manipulation;
 }
-input[type=color]{
-  width:100%;
-  height:45px;
-  border:0;
-  background:transparent;
-  padding:0;
+.wheel-result{text-align:center;font-size:12px;color:var(--muted)}
+.search-row{display:flex;gap:7px}
+.search-row input{flex:1}
+.search-result{font-size:13px;margin-top:8px;color:var(--muted)}
+.challenge{
+  border-radius:12px;
+  background:#f2f2ed;
+  padding:12px;
+  font-size:13px;
+  line-height:1.6;
 }
-input[type=range]{
-  width:100%;
-  accent-color:#66844c;
-}
-.tabs{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:5px;
-}
-.tabs button{
-  padding:9px 2px;
-  font-size:11px;
-  background:#e9eddf;
-  color:var(--ink);
-  min-height:40px;
-}
-.tabs button.active{
-  background:var(--green);
-  color:white;
-}
-.wheelWrap{
-  display:grid;
-  place-items:center;
-  padding:5px;
-}
-#wheel{
-  width:min(100%,270px);
-  height:auto;
-  touch-action: none;
-}
-.colorPreview{
-  height:42px;
-  border-radius:10px;
-  border:1px solid #0001;
-}
-.suggestions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:8px;
-}
-.suggestions button{
-  min-height:36px;
-  padding:7px 10px;
-  font-size:12px;
-}
-.history{display:grid;gap:8px}
-.historyitem{
+.history-list{display:flex;flex-direction:column;gap:7px}
+.history-item{
   display:flex;
   align-items:center;
   gap:9px;
-  padding:8px;
-  background:#f4f4ed;
-  border-radius:11px;
   font-size:12px;
-  overflow-wrap:anywhere;
+  border-bottom:1px solid var(--line);
+  padding:7px 0;
 }
-.hidden{display:none!important}
-.photo{
-  width:100%;
-  height:auto;
-  border-radius:12px;
-  margin-top:10px;
+.history-chip{width:32px;height:32px;border-radius:8px;flex:none}
+.history-text{flex:1;min-width:0;overflow-wrap:anywhere}
+.photo-section{margin-top:18px}
+.photo-preview{
   display:none;
+  margin-top:10px;
 }
-footer{
-  text-align:center;
-  color:var(--muted);
-  font-size:11px;
-  padding:8px 12px 15px;
+#photoCanvas{
+  width:100%;
+  border-radius:12px;
+  display:block;
 }
-@media(min-width:600px){
-  main{grid-template-columns:1fr 1fr}
-  .wide{grid-column:1/-1}
+.photo-buttons{display:flex;gap:8px;margin-top:8px}
+.photo-buttons button{flex:1;font-size:12px}
+.small{font-size:11px;color:var(--muted);line-height:1.5}
+footer{text-align:center;font-size:11px;color:var(--muted);padding:8px}
+@media(max-width:370px){
+  .app{padding:10px}
+  .card{padding:11px}
+  .swatch{height:72px}
+  button{padding:10px}
 }
 </style>
 </head>
 
 <body>
+<div class="app">
+
 <header>
-<div class="top">
-<div class="eyebrow">A LITTLE FIELD GUIDE TO COLOR</div>
-<h1>ColorWalk ✳</h1>
-<p class="sub">Point, sample, compare. Find the color hiding in plain sight.</p>
-</div>
+  <div>
+    <div class="logo">Color<span>Walk</span></div>
+    <div class="subtitle">See color differently.</div>
+  </div>
+  <div class="subtitle">v4.0</div>
 </header>
 
-<main>
-
-<!-- 01 CAMERA -->
-<section class="card wide">
-<h2>01 / Camera</h2>
-
-<div class="camera" id="cameraBox">
-<video id="video" playsinline muted></video>
-<div id="cameraPrompt">Tap Start Camera to begin.</div>
-<div class="aim" id="aim"></div>
-<div class="camera-note">The tiny center point is the exact sampling location</div>
-</div>
-
-<div class="row" style="margin-top:9px">
-<button id="startBtn">Start Camera</button>
-<button id="sampleBtn" class="secondary" disabled>Sample Color</button>
-</div>
-
-<div class="row" style="margin-top:7px">
-<button id="photoBtn" class="secondary" disabled>Take Photo</button>
-<button id="stopBtn" class="secondary" disabled>Stop Camera</button>
-</div>
-
-<p class="muted" id="cameraStatus" aria-live="polite">
-Camera is off. Tap Start Camera to request permission.
-</p>
-</section>
-
-<!-- 02 COMPARE -->
-<section class="card wide">
-<h2>02 / Compare</h2>
-
-<div class="mode">
-<button id="bothBtn" class="active">Compare Both</button>
-<button id="focusBtn">Focus One</button>
-</div>
-
-<div class="row" id="focusControls" style="display:none;margin-top:8px">
-<button id="focusA" class="active">Target A</button>
-<button id="focusB" class="secondary">Target B</button>
-</div>
-
-<div class="swatches" style="margin-top:10px">
-<div class="swatch" id="sampleSwatch" style="background:#9AA08D">Sample · #9AA08D</div>
-<div class="swatch" id="targetSwatchA" style="background:#687A45">A · #687A45</div>
-<div class="swatch" id="targetSwatchB" style="background:#A34F38">B · #A34F38</div>
-</div>
-
-<div class="resultgrid" style="margin-top:8px" id="resultsBoth">
-<div class="metric">
-<span class="muted">Match A</span>
-<strong id="matchA">—%</strong>
-<div class="meter"><i id="meterA"></i></div>
-</div>
-<div class="metric">
-<span class="muted">Match B</span>
-<strong id="matchB">—%</strong>
-<div class="meter"><i id="meterB"></i></div>
-</div>
-</div>
-
-<div class="metric hidden" id="resultFocus" style="margin-top:8px">
-<span class="muted" id="focusLabel">Match A</span>
-<strong id="matchFocus">—%</strong>
-<div class="meter"><i id="meterFocus"></i></div>
-<span class="muted" id="distanceFocus">Color distance: —</span>
-</div>
-</section>
-
-<!-- 03 TARGET -->
 <section class="card">
-<h2>03 / Choose target color</h2>
+  <div class="camera-top">
+    <div class="section-title">Camera</div>
+    <div id="status" class="status">Camera is off</div>
+  </div>
 
-<div class="row">
-<button id="selectA" class="active">Edit Target A</button>
-<button id="selectB" class="secondary">Edit Target B</button>
-</div>
+  <div class="camera-box">
+    <video id="video" autoplay muted playsinline></video>
+    <div id="placeholder" class="camera-placeholder">
+      Camera preview<br>
+      Press Start Camera
+    </div>
+    <div id="aim" class="aim"></div>
+  </div>
 
-<div class="targetline" style="margin:10px 0">
-<div class="dot" id="editDot" style="background:#687A45"></div>
-<div>
-<strong id="editName">Moss Green</strong>
-<div class="muted" id="editHex">#687A45</div>
-</div>
-</div>
+  <div class="camera-select-row">
+    <select id="cameraSelect" aria-label="Choose camera">
+      <option value="">Automatic camera</option>
+    </select>
+    <button id="refreshCamerasBtn">Refresh</button>
+  </div>
 
-<div class="tabs">
-<button class="active" data-tab="hex">HEX</button>
-<button data-tab="rgb">RGB</button>
-<button data-tab="wheel">Color Wheel</button>
-<button data-tab="name">Name Search</button>
-</div>
+  <div id="cameraInfo" class="camera-info">
+    Camera selection depends on the devices exposed by your browser.
+  </div>
 
-<div id="tabHex" style="margin-top:10px">
-<input id="hexInput" type="text" value="#687A45" placeholder="#RRGGBB">
-<button id="applyHex" style="width:100%;margin-top:7px">Apply HEX</button>
-</div>
-
-<div id="tabRgb" class="hidden" style="margin-top:10px">
-<div class="row">
-<div><label>R</label><input type="number" id="red" min="0" max="255" value="104"></div>
-<div><label>G</label><input type="number" id="green" min="0" max="255" value="122"></div>
-<div><label>B</label><input type="number" id="blue" min="0" max="255" value="69"></div>
-</div>
-<button id="applyRgb" style="width:100%;margin-top:7px">Apply RGB</button>
-</div>
-
-<div id="tabWheel" class="hidden" style="margin-top:10px">
-<div class="wheelWrap">
-<canvas id="wheel" width="300" height="300" aria-label="Interactive color wheel"></canvas>
-</div>
-<label>Brightness</label>
-<input type="range" id="brightness" min="15" max="100" value="100">
-<div class="muted" id="wheelHex">Selected: #687A45</div>
-</div>
-
-<div id="tabName" class="hidden" style="margin-top:10px">
-<input type="text" id="nameSearch" placeholder="Search color name…">
-<div class="suggestions" id="nameResults"></div>
-<p class="muted">Try Moss Green, Crimson, Lavender, Sky Blue, or Orange.</p>
-</div>
+  <div class="camera-controls">
+    <button id="startBtn" class="primary">Start Camera</button>
+    <button id="stopBtn" disabled>Stop Camera</button>
+    <button id="sampleBtn" class="primary" disabled>Sample Center</button>
+    <button id="photoBtn" disabled>Take Photo</button>
+  </div>
+  <div class="small" style="margin-top:8px">
+    Sampling reads one pixel at the exact center of the displayed camera image.
+  </div>
 </section>
 
-<!-- 04 RANDOM -->
 <section class="card">
-<h2>04 / Random Color Challenge</h2>
-<p class="muted">Generate a new random color from the full RGB range.</p>
-<div class="swatch" id="challengeSwatch" style="background:#A34F38;margin-bottom:9px">Random · #A34F38</div>
-<div class="row">
-<button id="randomBtn">New Challenge</button>
-<button id="useChallenge" class="secondary">Use as Target</button>
-</div>
+  <div class="section-title">Color Comparison</div>
+
+  <div class="mode-row">
+    <button id="bothBtn" class="active">Compare Both</button>
+    <button id="focusBtn">Focus One</button>
+  </div>
+
+  <div class="targets">
+    <div class="target">
+      <div id="swatchA" class="swatch"></div>
+      <div class="target-body">
+        <div class="target-name">Color A · Moss Green</div>
+        <input id="hexA" value="#687A45" maxlength="7" aria-label="Color A HEX">
+        <div id="rgbA" class="rgb">RGB 104, 122, 69</div>
+      </div>
+    </div>
+    <div class="target">
+      <div id="swatchB" class="swatch"></div>
+      <div class="target-body">
+        <div class="target-name">Color B · Rust Red</div>
+        <input id="hexB" value="#A34F38" maxlength="7" aria-label="Color B HEX">
+        <div id="rgbB" class="rgb">RGB 163, 79, 56</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="focus-buttons">
+    <button id="focusABtn" class="active">Focus A</button>
+    <button id="focusBBtn">Focus B</button>
+  </div>
+
+  <div class="result-area">
+    <div id="result" class="result">
+      Aim at a color and press Sample Center.
+    </div>
+    <div class="result-row">
+      <button id="setABtn">Set Sample → A</button>
+      <button id="setBBtn">Set Sample → B</button>
+    </div>
+    <div class="result-row">
+      <button id="saveFindBtn">Save Find</button>
+      <button id="randomBtn">Random Challenge</button>
+    </div>
+  </div>
 </section>
 
-<!-- 05 HISTORY -->
-<section class="card wide">
-<h2>05 / Save a Find</h2>
-<div class="row">
-<button id="saveBtn">Save Find</button>
-<button id="clearBtn" class="secondary">Clear History</button>
-</div>
-<div class="history" id="history" style="margin-top:9px">No saved finds yet.</div>
+<section class="card">
+  <div class="section-title">Color Wheel</div>
+  <canvas id="colorWheel" width="260" height="260"></canvas>
+  <div id="wheelResult" class="wheel-result">Tap the wheel to explore a color.</div>
 </section>
 
-<!-- 06 PHOTO AT THE END -->
-<section class="card wide" id="photoSection" style="display:none">
-<div class="row">
-<h2 style="margin:0;flex:1">06 / Captured Photo</h2>
-<button id="closePhotoBtn" class="secondary" style="flex:0 0 auto">Close Photo ✕</button>
-</div>
+<section class="card">
+  <div class="section-title">Color Name Search</div>
+  <div class="search-row">
+    <input id="nameSearch" placeholder="e.g. olive, coral, navy">
+    <button id="searchBtn">Search</button>
+  </div>
+  <div id="searchResult" class="search-result">Search common color names.</div>
+</section>
 
-<img id="photoPreview" class="photo" alt="Captured camera photo">
+<section class="card">
+  <div class="section-title">Random Challenge</div>
+  <div id="challenge" class="challenge">
+    Press Random Challenge to generate a target color.
+  </div>
+</section>
 
-<div class="row" id="photoActions" style="margin-top:9px">
-<button id="savePhotoBtn">Save Photo</button>
-<button id="samplePhotoBtn" class="secondary">Sample Photo Center</button>
-</div>
+<section class="card">
+  <div class="section-title">History</div>
+  <div id="history" class="history-list">
+    <div class="small">No saved colors yet.</div>
+  </div>
+  <button id="clearHistoryBtn" style="width:100%;margin-top:10px">Clear History</button>
+</section>
+
+<section class="card photo-section">
+  <div class="section-title">Photo Lab</div>
+  <div class="small">Take a photo to inspect it later. The photo preview is hidden by default.</div>
+  <div class="photo-buttons">
+    <button id="showPhotoBtn" disabled>Show Photo</button>
+    <button id="closePhotoBtn">Close Photo</button>
+  </div>
+  <div id="photoPreview" class="photo-preview">
+    <canvas id="photoCanvas"></canvas>
+    <div class="photo-buttons">
+      <button id="samplePhotoBtn">Sample Photo Center</button>
+      <button id="savePhotoBtn">Save Photo</button>
+    </div>
+  </div>
 </section>
 
 <footer>
-ColorWalk is a playful visual comparison tool, not a calibrated colorimeter.
-Lighting and your screen affect results. Camera processing stays in your browser.
+  ColorWalk is a visual comparison tool, not a calibrated colorimeter.
 </footer>
-</main>
+
+</div>
 
 <script>
-(() => {
-'use strict';
+"use strict";
 
 const $ = id => document.getElementById(id);
 
-const colorNames = [
-['Moss Green','#687A45'],['Rust Red','#A34F38'],
-['Crimson','#DC143C'],['Lavender','#B57EDC'],
-['Sky Blue','#87CEEB'],['Orange','#FFA500'],
-['Forest Green','#228B22'],['Navy','#000080'],
-['Coral','#FF7F50'],['Gold','#FFD700'],
-['Teal','#008080'],['Turquoise','#40E0D0'],
-['Pink','#FFC0CB'],['Purple','#800080'],
-['Olive','#808000'],['Mint','#98FF98'],
-['Ivory','#FFFFF0'],['Chocolate','#7B3F00'],
-['Slate Blue','#6A5ACD'],['Salmon','#FA8072'],
-['Indigo','#4B0082'],['Beige','#F5F5DC'],
-['Charcoal','#36454F'],['Burgundy','#800020'],
-['Peach','#FFE5B4'],['Lime','#BFFF00'],
-['Silver','#C0C0C0'],['White','#FFFFFF'],
-['Black','#000000'],['Rainy Blue','#547C8C'],
-['Golden Sand','#D8B56A'],['Dusty Rose','#B77D91'],
-['Warm Ivory','#E7DCC5'],['Persimmon','#D97842']
-];
+const video = $("video");
+const placeholder = $("placeholder");
+const cameraSelect = $("cameraSelect");
+const statusEl = $("status");
+const cameraInfo = $("cameraInfo");
 
-let targets=['#687A45','#A34F38'];
-let targetNames=['Moss Green','Rust Red'];
-let editIndex=0;
-let focusIndex=0;
-let mode='both';
-let sample='#9AA08D';
-let stream=null;
-let challenge='#A34F38';
-let photoData=null;
-let wheelHue=85;
-let wheelSat=45;
+let stream = null;
+let currentSample = null;
+let photoReady = false;
+let mode = "both";
+let focus = 0;
+let lastCameraId = "";
+let startingCamera = false;
 
-function rgb(h){
-  return [1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const defaultA = "#687A45";
+const defaultB = "#A34F38";
+
+function validHex(value){
+  return /^#[0-9a-fA-F]{6}$/.test(value);
 }
 
-function hex(r,g,b){
-  return '#'+[r,g,b]
-    .map(x=>Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,'0'))
-    .join('')
-    .toUpperCase();
+function hexToRgb(hex){
+  const h = hex.replace("#","");
+  return {
+    r:parseInt(h.slice(0,2),16),
+    g:parseInt(h.slice(2,4),16),
+    b:parseInt(h.slice(4,6),16)
+  };
 }
 
-function dist(a,b){
-  return Math.sqrt(a.reduce((s,v,i)=>s+(v-b[i])**2,0));
+function rgbToHex(r,g,b){
+  return "#"+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,"0")).join("").toUpperCase();
 }
 
-function match(h1,h2){
-  return Math.max(0,Math.round(
-    100*(1-dist(rgb(h1),rgb(h2))/(Math.sqrt(3)*255))
-  ));
+function rgbText(rgb){
+  return `RGB ${rgb.r}, ${rgb.g}, ${rgb.b}`;
 }
 
-function render(){
-  $('sampleSwatch').style.background=sample;
-  $('sampleSwatch').textContent='Sample · '+sample;
+function getColor(id){
+  const input=$(id);
+  if(!validHex(input.value)) return null;
+  return hexToRgb(input.value);
+}
 
-  targets.forEach((h,i)=>{
-    const el=$('targetSwatch'+(i?'B':'A'));
-    el.style.background=h;
-    el.textContent=(i?'B · ':'A · ')+h;
-
-    $('match'+(i?'B':'A')).textContent=match(sample,h)+'%';
-    $('meter'+(i?'B':'A')).style.width=match(sample,h)+'%';
+function updateTargets(){
+  ["A","B"].forEach(letter=>{
+    const hex=$("hex"+letter).value.toUpperCase();
+    if(!validHex(hex)) return;
+    $("hex"+letter).value=hex;
+    $("swatch"+letter).style.background=hex;
+    $("rgb"+letter).textContent=rgbText(hexToRgb(hex));
   });
+  updateComparison();
+}
 
-  if(mode==='focus'){
-    const i=focusIndex;
-    $('matchFocus').textContent=match(sample,targets[i])+'%';
-    $('meterFocus').style.width=match(sample,targets[i])+'%';
-    $('focusLabel').textContent='Match '+(i?'B':'A');
-    $('distanceFocus').textContent=
-      'Color distance: '+Math.round(dist(rgb(sample),rgb(targets[i])));
+function distance(c1,c2){
+  return Math.sqrt(
+    (c1.r-c2.r)**2+
+    (c1.g-c2.g)**2+
+    (c1.b-c2.b)**2
+  );
+}
+
+function updateComparison(){
+  if(!currentSample) return;
+  const a=getColor("hexA");
+  const b=getColor("hexB");
+  if(!a||!b) return;
+
+  const da=distance(currentSample,a);
+  const db=distance(currentSample,b);
+  let html="";
+
+  if(mode==="focus"){
+    const target=focus===0?a:b;
+    const d=focus===0?da:db;
+    html=`<strong>${d.toFixed(1)}</strong><br>
+    Distance from Color ${focus===0?"A":"B"}<br>
+    Sample ${rgbToHex(currentSample.r,currentSample.g,currentSample.b)}`;
+  }else{
+    const closer=da<db?"A":db<da?"B":"Equal";
+    html=`<strong>${closer==="Equal"?"Equal distance":`Closer to Color ${closer}`}</strong><br>
+    Distance to A: ${da.toFixed(1)} · B: ${db.toFixed(1)}<br>
+    Sample ${rgbToHex(currentSample.r,currentSample.g,currentSample.b)}`;
   }
 
-  updateEditor();
+  $("result").innerHTML=html;
+  $("result").className="result "+(mode==="both"&&da<db?"good":mode==="both"&&db<da?"bad":"");
 }
 
-function updateEditor(){
-  $('editDot').style.background=targets[editIndex];
-  $('editHex').textContent=targets[editIndex];
-  $('editName').textContent=targetNames[editIndex];
-  $('hexInput').value=targets[editIndex];
+function setMode(next){
+  mode=next;
+  $("bothBtn").classList.toggle("active",mode==="both");
+  $("focusBtn").classList.toggle("active",mode==="focus");
+  $("focusABtn").style.display=mode==="focus"?"block":"none";
+  $("focusBBtn").style.display=mode==="focus"?"block":"none";
+  updateComparison();
+}
+$("bothBtn").onclick=()=>setMode("both");
+$("focusBtn").onclick=()=>setMode("focus");
+$("focusABtn").onclick=()=>{focus=0;$("focusABtn").classList.add("active");$("focusBBtn").classList.remove("active");updateComparison()};
+$("focusBBtn").onclick=()=>{focus=1;$("focusBBtn").classList.add("active");$("focusABtn").classList.remove("active");updateComparison()};
 
-  const c=rgb(targets[editIndex]);
-  $('red').value=c[0];
-  $('green').value=c[1];
-  $('blue').value=c[2];
+$("hexA").addEventListener("change",updateTargets);
+$("hexB").addEventListener("change",updateTargets);
+
+function setSample(rgb){
+  currentSample=rgb;
+  $("result").textContent=`Sample: ${rgbToHex(rgb.r,rgb.g,rgb.b)} · ${rgbText(rgb)}`;
+  updateComparison();
 }
 
-function setTarget(h,name){
-  targets[editIndex]=h.toUpperCase();
-  targetNames[editIndex]=name||
-    colorNames.find(x=>x[1]===h.toUpperCase())?.[0]||
-    'Custom Color';
-  render();
+function sampleVideoCenter(){
+  if(!stream||video.readyState<2||!video.videoWidth){
+    statusEl.textContent="Camera not ready";
+    return;
+  }
+
+  const canvas=document.createElement("canvas");
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  const ctx=canvas.getContext("2d",{willReadFrequently:true});
+
+  /*
+   * object-fit:cover uses a centered crop.
+   * The center of the visible image maps to the center of the source frame.
+   * Read exactly one pixel; no region averaging.
+   */
+  const x=Math.floor(video.videoWidth/2);
+  const y=Math.floor(video.videoHeight/2);
+  const pixel=ctx.getImageData(x,y,1,1).data;
+
+  setSample({r:pixel[0],g:pixel[1],b:pixel[2]});
+  statusEl.textContent="Center sampled";
 }
 
-function setEdit(i){
-  editIndex=i;
+$("sampleBtn").onclick=sampleVideoCenter;
 
-  $('selectA').classList.toggle('active',i===0);
-  $('selectB').classList.toggle('active',i===1);
-
-  $('selectA').classList.toggle('secondary',i!==0);
-  $('selectB').classList.toggle('secondary',i!==1);
-
-  updateEditor();
+function stopCamera(){
+  if(stream){
+    stream.getTracks().forEach(track=>{
+      try{track.stop()}catch(e){}
+    });
+  }
+  stream=null;
+  video.pause();
+  video.srcObject=null;
+  video.style.display="none";
+  placeholder.style.display="block";
+  $("aim").style.display="none";
+  $("startBtn").disabled=false;
+  $("stopBtn").disabled=true;
+  $("sampleBtn").disabled=true;
+  $("photoBtn").disabled=true;
+  statusEl.textContent="Camera is off";
+  cameraInfo.textContent="Camera stopped. Press Start Camera to resume.";
+  startingCamera=false;
 }
 
-$('selectA').addEventListener('click',()=>setEdit(0));
-$('selectB').addEventListener('click',()=>setEdit(1));
-
-function setMode(m){
-  mode=m;
-
-  $('bothBtn').classList.toggle('active',m==='both');
-  $('focusBtn').classList.toggle('active',m==='focus');
-
-  $('resultsBoth').classList.toggle('hidden',m!=='both');
-  $('resultFocus').classList.toggle('hidden',m!=='focus');
-
-  $('focusControls').style.display=m==='focus'?'flex':'none';
-
-  render();
+function cameraConstraints(deviceId){
+  if(deviceId){
+    return {
+      audio:false,
+      video:{
+        deviceId:{exact:deviceId},
+        width:{ideal:1920},
+        height:{ideal:1080}
+      }
+    };
+  }
+  return {
+    audio:false,
+    video:{
+      facingMode:{ideal:"environment"},
+      width:{ideal:1920},
+      height:{ideal:1080}
+    }
+  };
 }
 
-$('bothBtn').addEventListener('click',()=>setMode('both'));
-$('focusBtn').addEventListener('click',()=>setMode('focus'));
+async function refreshCameras(){
+  if(!navigator.mediaDevices?.enumerateDevices){
+    cameraInfo.textContent="This browser does not support camera enumeration.";
+    return;
+  }
 
-function setFocus(i){
-  focusIndex=i;
+  try{
+    const devices=await navigator.mediaDevices.enumerateDevices();
+    const cameras=devices.filter(d=>d.kind==="videoinput");
+    const previous=cameraSelect.value;
 
-  $('focusA').classList.toggle('active',i===0);
-  $('focusB').classList.toggle('active',i===1);
+    cameraSelect.innerHTML="";
+    const auto=document.createElement("option");
+    auto.value="";
+    auto.textContent="Automatic rear camera";
+    cameraSelect.appendChild(auto);
 
-  $('focusA').classList.toggle('secondary',i!==0);
-  $('focusB').classList.toggle('secondary',i!==1);
-
-  render();
-}
-
-$('focusA').addEventListener('click',()=>setFocus(0));
-$('focusB').addEventListener('click',()=>setFocus(1));
-
-document.querySelectorAll('[data-tab]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('[data-tab]').forEach(b=>{
-      b.classList.toggle('active',b===btn);
+    cameras.forEach((camera,index)=>{
+      const option=document.createElement("option");
+      option.value=camera.deviceId;
+      option.textContent=camera.label||`Camera ${index+1}`;
+      cameraSelect.appendChild(option);
     });
 
-    ['hex','rgb','wheel','name'].forEach(t=>{
-      $('tab'+t[0].toUpperCase()+t.slice(1))
-        .classList.toggle('hidden',t!==btn.dataset.tab);
-    });
-  });
-});
+    if(previous&&cameras.some(c=>c.deviceId===previous)){
+      cameraSelect.value=previous;
+    }
 
-$('applyHex').addEventListener('click',()=>{
-  const h=$('hexInput').value.trim();
-
-  if(/^#[0-9a-fA-F]{6}$/.test(h)){
-    setTarget(h);
-  }else{
-    alert('Enter a HEX value such as #687A45.');
+    if(cameras.length===0){
+      cameraInfo.textContent="No camera devices were exposed by the browser.";
+    }else{
+      cameraInfo.textContent=`${cameras.length} camera option(s) available. Names depend on browser permissions.`;
+    }
+  }catch(error){
+    cameraInfo.textContent="Could not list cameras: "+error.message;
   }
-});
-
-$('applyRgb').addEventListener('click',()=>{
-  const vals=['red','green','blue'].map(id=>Number($(id).value));
-
-  if(vals.every(v=>Number.isInteger(v)&&v>=0&&v<=255)){
-    setTarget(hex(...vals));
-  }else{
-    alert('Each RGB value must be an integer from 0 to 255.');
-  }
-});
-
-function hsvToRgb(h,s,v){
-  s/=100;
-  v/=100;
-
-  let c=v*s;
-  let x=c*(1-Math.abs((h/60)%2-1));
-  let m=v-c;
-
-  let r=0,g=0,b=0;
-
-  if(h<60){r=c;g=x}
-  else if(h<120){r=x;g=c}
-  else if(h<180){g=c;b=x}
-  else if(h<240){g=x;b=c}
-  else if(h<300){r=x;b=c}
-  else{r=c;b=x}
-
-  return hex((r+m)*255,(g+m)*255,(b+m)*255);
 }
+
+async function startCamera(deviceId=cameraSelect.value){
+  if(startingCamera) return;
+  if(!navigator.mediaDevices?.getUserMedia){
+    statusEl.textContent="Camera requires HTTPS or localhost";
+    return;
+  }
+
+  startingCamera=true;
+  $("startBtn").disabled=true;
+  statusEl.textContent="Opening camera…";
+
+  if(stream) stopCamera();
+
+  try{
+    const newStream=await navigator.mediaDevices.getUserMedia(cameraConstraints(deviceId));
+    stream=newStream;
+    video.srcObject=stream;
+    video.style.display="block";
+    placeholder.style.display="none";
+    $("aim").style.display="block";
+
+    await video.play();
+
+    const track=stream.getVideoTracks()[0];
+    const settings=track.getSettings?track.getSettings():{};
+    const width=settings.width||video.videoWidth;
+    const height=settings.height||video.videoHeight;
+
+    lastCameraId=settings.deviceId||deviceId||"";
+    $("startBtn").disabled=true;
+    $("stopBtn").disabled=false;
+    $("sampleBtn").disabled=false;
+    $("photoBtn").disabled=false;
+    statusEl.textContent="Camera active";
+    cameraInfo.textContent=`Active camera · ${width} × ${height}`;
+
+    await refreshCameras();
+    if(lastCameraId) cameraSelect.value=lastCameraId;
+  }catch(error){
+    if(stream){
+      stream.getTracks().forEach(track=>track.stop());
+      stream=null;
+    }
+    video.srcObject=null;
+    video.style.display="none";
+    placeholder.style.display="block";
+    $("startBtn").disabled=false;
+    $("stopBtn").disabled=true;
+    $("sampleBtn").disabled=true;
+    $("photoBtn").disabled=true;
+    statusEl.textContent="Camera could not start";
+    cameraInfo.textContent=error.name+": "+error.message;
+  }finally{
+    startingCamera=false;
+  }
+}
+
+$("startBtn").onclick=()=>startCamera();
+$("stopBtn").onclick=stopCamera;
+$("refreshCamerasBtn").onclick=refreshCameras;
+
+cameraSelect.addEventListener("change",async()=>{
+  if(stream){
+    const chosen=cameraSelect.value;
+    stopCamera();
+    await startCamera(chosen);
+  }
+});
+
+async function takePhoto(){
+  if(!stream||!video.videoWidth) return;
+  const canvas=$("photoCanvas");
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+  photoReady=true;
+  $("showPhotoBtn").disabled=false;
+  $("photoPreview").style.display="block";
+}
+
+$("photoBtn").onclick=takePhoto;
+$("showPhotoBtn").onclick=()=>{
+  if(photoReady) $("photoPreview").style.display="block";
+};
+$("closePhotoBtn").onclick=()=>{
+  $("photoPreview").style.display="none";
+};
+
+$("samplePhotoBtn").onclick=()=>{
+  if(!photoReady) return;
+  const canvas=$("photoCanvas");
+  const ctx=canvas.getContext("2d",{willReadFrequently:true});
+  const p=ctx.getImageData(Math.floor(canvas.width/2),Math.floor(canvas.height/2),1,1).data;
+  setSample({r:p[0],g:p[1],b:p[2]});
+};
+
+$("savePhotoBtn").onclick=()=>{
+  if(!photoReady) return;
+  const link=document.createElement("a");
+  link.download="ColorWalk-photo.png";
+  link.href=$("photoCanvas").toDataURL("image/png");
+  link.click();
+};
+
+$("setABtn").onclick=()=>{
+  if(currentSample){
+    $("hexA").value=rgbToHex(currentSample.r,currentSample.g,currentSample.b);
+    updateTargets();
+  }
+};
+$("setBBtn").onclick=()=>{
+  if(currentSample){
+    $("hexB").value=rgbToHex(currentSample.r,currentSample.g,currentSample.b);
+    updateTargets();
+  }
+};
+
+function getHistory(){
+  try{return JSON.parse(localStorage.getItem("colorwalk-history")||"[]")}
+  catch(e){return []}
+}
+function renderHistory(){
+  const items=getHistory();
+  const root=$("history");
+  root.innerHTML="";
+  if(!items.length){
+    root.innerHTML='<div class="small">No saved colors yet.</div>';
+    return;
+  }
+  items.slice(0,20).forEach(item=>{
+    const row=document.createElement("div");
+    row.className="history-item";
+    const chip=document.createElement("div");
+    chip.className="history-chip";
+    chip.style.background=item.hex;
+    const text=document.createElement("div");
+    text.className="history-text";
+    text.textContent=item.hex+" · "+item.date;
+    row.append(chip,text);
+    row.onclick=()=>setSample(hexToRgb(item.hex));
+    root.appendChild(row);
+  });
+}
+$("saveFindBtn").onclick=()=>{
+  if(!currentSample) return;
+  const hex=rgbToHex(currentSample.r,currentSample.g,currentSample.b);
+  const items=getHistory();
+  items.unshift({hex,date:new Date().toLocaleString()});
+  localStorage.setItem("colorwalk-history",JSON.stringify(items.slice(0,50)));
+  renderHistory();
+};
+$("clearHistoryBtn").onclick=()=>{
+  localStorage.removeItem("colorwalk-history");
+  renderHistory();
+};
+
+$("randomBtn").onclick=()=>{
+  const r=Math.floor(Math.random()*256);
+  const g=Math.floor(Math.random()*256);
+  const b=Math.floor(Math.random()*256);
+  const hex=rgbToHex(r,g,b);
+  $("challenge").innerHTML=`<div style="display:flex;align-items:center;gap:10px">
+    <div style="width:48px;height:48px;border-radius:10px;background:${hex}"></div>
+    <div><strong>${hex}</strong><br>Find this color in the world.</div>
+  </div>`;
+  $("hexA").value=hex;
+  updateTargets();
+};
+
+const colorNames={
+  red:"#FF0000",green:"#008000",blue:"#0000FF",
+  yellow:"#FFFF00",orange:"#FFA500",purple:"#800080",
+  pink:"#FFC0CB",brown:"#A52A2A",black:"#000000",
+  white:"#FFFFFF",gray:"#808080",grey:"#808080",
+  navy:"#000080",teal:"#008080",olive:"#808000",
+  coral:"#FF7F50",tomato:"#FF6347",gold:"#FFD700",
+  beige:"#F5F5DC",ivory:"#FFFFF0",mint:"#98FF98",
+  cyan:"#00FFFF",magenta:"#FF00FF",maroon:"#800000",
+  khaki:"#F0E68C",salmon:"#FA8072",indigo:"#4B0082",
+  lime:"#00FF00",chocolate:"#D2691E"
+};
+function searchColor(){
+  const name=$("nameSearch").value.trim().toLowerCase();
+  const hex=colorNames[name];
+  if(hex){
+    $("searchResult").textContent=`${name} · ${hex}`;
+    $("hexA").value=hex;
+    updateTargets();
+  }else{
+    $("searchResult").textContent="Name not found in the built-in color list.";
+  }
+}
+$("searchBtn").onclick=searchColor;
+$("nameSearch").addEventListener("keydown",e=>{
+  if(e.key==="Enter") searchColor();
+});
 
 function drawWheel(){
-  const canvas=$('wheel');
-  const ctx=canvas.getContext('2d');
-  const cx=150,cy=150,R=145;
-
-  const img=ctx.createImageData(300,300);
-
-  for(let y=0;y<300;y++){
-    for(let x=0;x<300;x++){
-      const dx=x-cx;
-      const dy=cy-y;
-      const r=Math.sqrt(dx*dx+dy*dy);
-      const i=(y*300+x)*4;
-
-      if(r<=R){
-        const h=(Math.atan2(dy,dx)*180/Math.PI+360)%360;
-        const s=r/R;
-
-        const col=rgb(hsvToRgb(
-          h,s*100,Number($('brightness').value)
-        ));
-
-        img.data[i]=col[0];
-        img.data[i+1]=col[1];
-        img.data[i+2]=col[2];
-        img.data[i+3]=255;
+  const canvas=$("colorWheel");
+  const ctx=canvas.getContext("2d");
+  const cx=130,cy=130,r=122;
+  const image=ctx.createImageData(260,260);
+  for(let y=0;y<260;y++){
+    for(let x=0;x<260;x++){
+      const dx=x-cx,dy=y-cy;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      const i=(y*260+x)*4;
+      if(d<=r){
+        const hue=(Math.atan2(dy,dx)*180/Math.PI+360)%360;
+        const sat=d/r;
+        const rgb=hslToRgb(hue,sat,0.5);
+        image.data[i]=rgb.r;
+        image.data[i+1]=rgb.g;
+        image.data[i+2]=rgb.b;
+        image.data[i+3]=255;
       }
     }
   }
-
-  ctx.putImageData(img,0,0);
-
-  const a=wheelHue*Math.PI/180;
-  const r=wheelSat/100*R;
-
-  ctx.beginPath();
-  ctx.arc(cx+Math.cos(a)*r,cy-Math.sin(a)*r,7,0,Math.PI*2);
-  ctx.strokeStyle='white';
-  ctx.lineWidth=3;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.arc(cx+Math.cos(a)*r,cy-Math.sin(a)*r,9,0,Math.PI*2);
-  ctx.strokeStyle='#222';
-  ctx.lineWidth=1;
-  ctx.stroke();
+  ctx.putImageData(image,0,0);
 }
-
-function wheelPick(e){
-  const rect=$('wheel').getBoundingClientRect();
-
-  const x=(e.clientX-rect.left)*300/rect.width-150;
-  const y=150-(e.clientY-rect.top)*300/rect.height;
-
-  const r=Math.min(145,Math.sqrt(x*x+y*y));
-
-  wheelHue=(Math.atan2(y,x)*180/Math.PI+360)%360;
-  wheelSat=r/145*100;
-
-  const h=hsvToRgb(
-    wheelHue,wheelSat,Number($('brightness').value)
-  );
-
-  setTarget(h);
-  $('wheelHex').textContent='Selected: '+h;
-
-  drawWheel();
+function hslToRgb(h,s,l){
+  h/=360;
+  const f=n=>{
+    const k=(n+h*12)%12;
+    const a=s*Math.min(l,1-l);
+    return l-a*Math.max(-1,Math.min(k-3,Math.min(9-k,1)));
+  };
+  return {r:Math.round(f(0)*255),g:Math.round(f(8)*255),b:Math.round(f(4)*255)};
 }
-
-$('wheel').addEventListener('pointerdown',e=>{
-  e.preventDefault();
-  wheelPick(e);
+$("colorWheel").addEventListener("click",e=>{
+  const rect=e.currentTarget.getBoundingClientRect();
+  const x=(e.clientX-rect.left)*260/rect.width-130;
+  const y=(e.clientY-rect.top)*260/rect.height-130;
+  if(Math.sqrt(x*x+y*y)>122) return;
+  const hue=(Math.atan2(y,x)*180/Math.PI+360)%360;
+  const sat=Math.min(1,Math.sqrt(x*x+y*y)/122);
+  const rgb=hslToRgb(hue,sat,0.5);
+  const hex=rgbToHex(rgb.r,rgb.g,rgb.b);
+  $("wheelResult").textContent=hex+" · tap Set Sample buttons after sampling, or use as Color A";
+  $("hexA").value=hex;
+  updateTargets();
 });
+drawWheel();
 
-$('wheel').addEventListener('pointermove',e=>{
-  if(e.buttons)wheelPick(e);
-});
-
-$('brightness').addEventListener('input',()=>{
-  setTarget(hsvToRgb(
-    wheelHue,wheelSat,Number($('brightness').value)
-  ));
-
-  $('wheelHex').textContent='Selected: '+targets[editIndex];
-  drawWheel();
-});
-
-function renderNames(){
-  const q=$('nameSearch').value.trim().toLowerCase();
-
-  const list=colorNames.filter(([n,h])=>
-    n.toLowerCase().includes(q)||h.toLowerCase().includes(q)
-  ).slice(0,24);
-
-  $('nameResults').innerHTML='';
-
-  if(!list.length){
-    $('nameResults').textContent='No matching color found.';
-    return;
-  }
-
-  list.forEach(([n,h])=>{
-    const b=document.createElement('button');
-    b.className='secondary';
-    b.textContent=n;
-    b.style.borderLeft='8px solid '+h;
-
-    b.addEventListener('click',()=>setTarget(h,n));
-
-    $('nameResults').append(b);
-  });
-}
-
-$('nameSearch').addEventListener('input',renderNames);
-
-function randomHex(){
-  return hex(
-    Math.floor(Math.random()*256),
-    Math.floor(Math.random()*256),
-    Math.floor(Math.random()*256)
-  );
-}
-
-function newChallenge(){
-  challenge=randomHex();
-
-  $('challengeSwatch').style.background=challenge;
-  $('challengeSwatch').textContent='Random · '+challenge;
-}
-
-$('randomBtn').addEventListener('click',newChallenge);
-
-$('useChallenge').addEventListener('click',()=>{
-  setTarget(challenge,'Random Color');
-});
-
-/* CAMERA */
-
-$('startBtn').addEventListener('click',async()=>{
-  if(!navigator.mediaDevices?.getUserMedia){
-    $('cameraStatus').textContent=
-      'Camera unavailable. Open the deployed HTTPS website in Safari.';
-    return;
-  }
-
-  try{
-    $('cameraStatus').textContent='Waiting for camera permission…';
-
-    stream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:{ideal:'environment'}},
-      audio:false
+function releaseOnExit(){
+  if(stream){
+    stream.getTracks().forEach(track=>{
+      try{track.stop()}catch(e){}
     });
-
-    $('video').srcObject=stream;
-    await $('video').play();
-
-    $('video').style.display='block';
-    $('cameraPrompt').classList.add('hidden');
-    $('aim').style.display='block';
-
-    $('sampleBtn').disabled=false;
-    $('photoBtn').disabled=false;
-    $('stopBtn').disabled=false;
-    $('startBtn').disabled=true;
-
-    $('cameraStatus').textContent=
-      'Camera on. Aim the center point at a color.';
-  }catch(err){
-    $('cameraStatus').textContent=
-      err.name==='NotAllowedError'
-      ?'Permission denied. Allow camera access in Safari settings, then retry.'
-      :'Camera error: '+err.message;
+    stream=null;
   }
-});
+  video.pause();
+  video.srcObject=null;
+}
 
 /*
-  Exact center pixel mapping.
-
-  The video is displayed with object-fit:cover.
-  This function maps the visible display center back
-  to the original video frame, then reads one pixel.
-*/
-function readVideoCenter(video){
-  const vw=video.videoWidth;
-  const vh=video.videoHeight;
-
-  const rect=video.getBoundingClientRect();
-  const boxW=rect.width;
-  const boxH=rect.height;
-
-  if(!vw||!vh||!boxW||!boxH){
-    throw new Error('Video dimensions are not ready.');
-  }
-
-  const scale=Math.max(boxW/vw,boxH/vh);
-
-  const renderedW=vw*scale;
-  const renderedH=vh*scale;
-
-  const cropX=(renderedW-boxW)/2;
-  const cropY=(renderedH-boxH)/2;
-
-  const x=Math.min(
-    vw-1,
-    Math.max(0,Math.floor((boxW/2+cropX)/scale))
-  );
-
-  const y=Math.min(
-    vh-1,
-    Math.max(0,Math.floor((boxH/2+cropY)/scale))
-  );
-
-  const canvas=document.createElement('canvas');
-  canvas.width=1;
-  canvas.height=1;
-
-  const ctx=canvas.getContext('2d',{
-    willReadFrequently:true
-  });
-
-  ctx.drawImage(
-    video,
-    x,y,1,1,
-    0,0,1,1
-  );
-
-  const p=ctx.getImageData(0,0,1,1).data;
-
-  return hex(p[0],p[1],p[2]);
-}
-
-$('sampleBtn').addEventListener('click',()=>{
-  const v=$('video');
-
-  if(!v.videoWidth){
-    $('cameraStatus').textContent='Camera is not ready yet.';
-    return;
-  }
-
-  try{
-    sample=readVideoCenter(v);
-    render();
-
-    $('cameraStatus').textContent=
-      'Exact center pixel: '+sample;
-  }catch(err){
-    $('cameraStatus').textContent='Sampling error: '+err.message;
-  }
+ * Release camera when the page is hidden, navigated away from,
+ * or unloaded. On returning, the user starts the camera manually.
+ */
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden) stopCamera();
 });
+window.addEventListener("pagehide",stopCamera);
+window.addEventListener("beforeunload",releaseOnExit);
 
-/* TAKE PHOTO */
-
-$('photoBtn').addEventListener('click',()=>{
-  const v=$('video');
-  if(!v.videoWidth)return;
-
-  const c=document.createElement('canvas');
-  c.width=v.videoWidth;
-  c.height=v.videoHeight;
-
-  c.getContext('2d').drawImage(v,0,0,c.width,c.height);
-
-  photoData=c.toDataURL('image/jpeg',0.92);
-
-  $('photoPreview').src=photoData;
-  $('photoPreview').style.display='block';
-  $('photoSection').style.display='block';
-  $('photoActions').style.display='flex';
-
-  $('cameraStatus').textContent=
-    'Photo captured. View it at the bottom of the page.';
-
-  $('photoSection').scrollIntoView({
-    behavior:'smooth',
-    block:'start'
-  });
-});
-
-$('closePhotoBtn').addEventListener('click',()=>{
-  $('photoSection').style.display='none';
-  $('photoPreview').src='';
-  $('photoPreview').style.display='none';
-  $('photoActions').style.display='none';
-});
-
-$('savePhotoBtn').addEventListener('click',()=>{
-  if(!photoData)return;
-
-  const a=document.createElement('a');
-  a.href=photoData;
-  a.download='ColorWalk-'+Date.now()+'.jpg';
-
-  document.body.append(a);
-  a.click();
-  a.remove();
-});
-
-$('samplePhotoBtn').addEventListener('click',()=>{
-  if(!photoData)return;
-
-  const img=new Image();
-
-  img.onload=()=>{
-    const c=document.createElement('canvas');
-    c.width=img.naturalWidth;
-    c.height=img.naturalHeight;
-
-    c.getContext('2d').drawImage(img,0,0);
-
-    const ctx=c.getContext('2d');
-    const x=Math.floor(c.width/2);
-    const y=Math.floor(c.height/2);
-    const p=ctx.getImageData(x,y,1,1).data;
-
-    sample=hex(p[0],p[1],p[2]);
-    render();
-
-    $('cameraStatus').textContent=
-      'Photo center pixel sampled: '+sample;
-  };
-
-  img.src=photoData;
-});
-
-/* STOP CAMERA */
-
-$('stopBtn').addEventListener('click',()=>{
-  if(stream){
-    stream.getTracks().forEach(t=>t.stop());
-  }
-
-  stream=null;
-  $('video').srcObject=null;
-  $('video').style.display='none';
-  $('aim').style.display='none';
-
-  $('cameraPrompt').classList.remove('hidden');
-  $('cameraPrompt').textContent=
-    'Camera stopped. Tap Start Camera to restart.';
-
-  $('sampleBtn').disabled=true;
-  $('photoBtn').disabled=true;
-  $('stopBtn').disabled=true;
-  $('startBtn').disabled=false;
-
-  $('cameraStatus').textContent='Camera is off.';
-});
-
-/* HISTORY */
-
-function loadHistory(){
-  let arr=[];
-
-  try{
-    arr=JSON.parse(localStorage.getItem('colorwalk-history')||'[]');
-  }catch{}
-
-  $('history').innerHTML='';
-
-  if(!arr.length){
-    $('history').textContent='No saved finds yet.';
-    return;
-  }
-
-  arr.slice().reverse().forEach(item=>{
-    const d=document.createElement('div');
-    d.className='historyitem';
-
-    const sw=document.createElement('span');
-    sw.className='dot';
-    sw.style.background=item.sample;
-
-    const txt=document.createElement('span');
-    txt.textContent=
-      item.sample+' → '+item.target+' · '+item.match+'% · '+item.date;
-
-    d.append(sw,txt);
-    $('history').append(d);
+if(navigator.mediaDevices?.addEventListener){
+  navigator.mediaDevices.addEventListener("devicechange",()=>{
+    if(!document.hidden) refreshCameras();
   });
 }
 
-$('saveBtn').addEventListener('click',()=>{
-  let arr=[];
-
-  try{
-    arr=JSON.parse(localStorage.getItem('colorwalk-history')||'[]');
-  }catch{}
-
-  arr.push({
-    sample,
-    target:targets[focusIndex],
-    match:match(sample,targets[focusIndex]),
-    date:new Date().toLocaleString()
-  });
-
-  try{
-    localStorage.setItem(
-      'colorwalk-history',
-      JSON.stringify(arr.slice(-40))
-    );
-
-    loadHistory();
-    $('cameraStatus').textContent='Find saved on this device.';
-  }catch{
-    $('cameraStatus').textContent=
-      'Could not save history in this browser.';
-  }
-});
-
-$('clearBtn').addEventListener('click',()=>{
-  if(confirm('Clear all saved finds on this device?')){
-    localStorage.removeItem('colorwalk-history');
-    loadHistory();
-  }
-});
-
-/* INITIALIZE */
-
-drawWheel();
-renderNames();
-render();
-newChallenge();
-loadHistory();
-
-})();
+updateTargets();
+renderHistory();
+refreshCameras();
+setMode("both");
 </script>
 </body>
 </html>
