@@ -270,7 +270,8 @@ input[type=range]{
 #wheel{
   width:min(100%,270px);
   height:auto;
-  touch-action: none;
+  touch-action:none;
+  display:block;
 }
 .colorPreview{
   height:42px;
@@ -298,6 +299,16 @@ input[type=range]{
   border-radius:11px;
   font-size:12px;
   overflow-wrap:anywhere;
+}
+.historyitem .historytext{
+  flex:1;
+  min-width:0;
+}
+.historyitem .deleteHistory{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:7px 10px;
+  font-size:11px;
 }
 .hidden{display:none!important}
 .photo{
@@ -539,6 +550,8 @@ let sample='#9AA08D';
 let stream=null;
 let challenge='#A34F38';
 let photoData=null;
+let wheelHue=85;
+let wheelSat=45;
 
 /* Multi-camera state */
 let currentCameraId=null;
@@ -668,6 +681,17 @@ document.querySelectorAll('[data-tab]').forEach(btn=>{
       $('tab'+t[0].toUpperCase()+t.slice(1))
         .classList.toggle('hidden',t!==btn.dataset.tab);
     });
+
+    /*
+      Redraw the wheel after its tab becomes visible.
+      This is important on mobile because a hidden canvas
+      can have an incorrect layout size when first drawn.
+    */
+    if(btn.dataset.tab==='wheel'){
+      requestAnimationFrame(()=>{
+        drawWheel();
+      });
+    }
   });
 });
 
@@ -714,7 +738,10 @@ function hsvToRgb(h,s,v){
 function drawWheel(){
   const canvas=$('wheel');
   const ctx=canvas.getContext('2d');
-  const cx=150,cy=150,R=145;
+
+  const cx=150;
+  const cy=150;
+  const R=145;
 
   const img=ctx.createImageData(300,300);
 
@@ -730,7 +757,9 @@ function drawWheel(){
         const s=r/R;
 
         const col=rgb(hsvToRgb(
-          h,s*100,Number($('brightness').value)
+          h,
+          s*100,
+          Number($('brightness').value)
         ));
 
         img.data[i]=col[0];
@@ -747,54 +776,155 @@ function drawWheel(){
   const r=wheelSat/100*R;
 
   ctx.beginPath();
-  ctx.arc(cx+Math.cos(a)*r,cy-Math.sin(a)*r,7,0,Math.PI*2);
+  ctx.arc(
+    cx+Math.cos(a)*r,
+    cy-Math.sin(a)*r,
+    7,
+    0,
+    Math.PI*2
+  );
   ctx.strokeStyle='white';
   ctx.lineWidth=3;
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.arc(cx+Math.cos(a)*r,cy-Math.sin(a)*r,9,0,Math.PI*2);
+  ctx.arc(
+    cx+Math.cos(a)*r,
+    cy-Math.sin(a)*r,
+    9,
+    0,
+    Math.PI*2
+  );
   ctx.strokeStyle='#222';
   ctx.lineWidth=1;
   ctx.stroke();
 }
 
-function wheelPick(e){
+
+/*
+  Convert a pointer event into the canvas's
+  internal 300 × 300 coordinate system.
+
+  Using getBoundingClientRect() means this continues
+  to work when the canvas is resized on a phone.
+*/
+function getWheelPoint(e){
   const rect=$('wheel').getBoundingClientRect();
 
-  const x=(e.clientX-rect.left)*300/rect.width-150;
-  const y=150-(e.clientY-rect.top)*300/rect.height;
+  if(!rect.width || !rect.height){
+    return null;
+  }
 
-  const r=Math.min(145,Math.sqrt(x*x+y*y));
+  const x=
+    (e.clientX-rect.left)*
+    300/rect.width;
 
-  wheelHue=(Math.atan2(y,x)*180/Math.PI+360)%360;
-  wheelSat=r/145*100;
+  const y=
+    (e.clientY-rect.top)*
+    300/rect.height;
+
+  return {
+    x:x-150,
+    y:150-y
+  };
+}
+
+
+function wheelPick(e){
+  const point=getWheelPoint(e);
+
+  if(!point)return;
+
+  const x=point.x;
+  const y=point.y;
+
+  const distance=Math.sqrt(x*x+y*y);
+
+  /*
+    Ignore touches/clicks outside the actual wheel.
+    This prevents selecting a color from the transparent
+    corners of the canvas.
+  */
+  if(distance>145){
+    return;
+  }
+
+  const r=Math.min(145,distance);
+
+  wheelHue=
+    (Math.atan2(y,x)*180/Math.PI+360)%360;
+
+  wheelSat=
+    r/145*100;
 
   const h=hsvToRgb(
-    wheelHue,wheelSat,Number($('brightness').value)
+    wheelHue,
+    wheelSat,
+    Number($('brightness').value)
   );
 
   setTarget(h);
-  $('wheelHex').textContent='Selected: '+h;
+
+  $('wheelHex').textContent=
+    'Selected: '+targets[editIndex];
 
   drawWheel();
 }
 
+
+/*
+  Color wheel pointer handling.
+
+  pointer capture keeps dragging connected to the canvas
+  even when the finger moves slightly outside it.
+*/
 $('wheel').addEventListener('pointerdown',e=>{
   e.preventDefault();
+
+  try{
+    $('wheel').setPointerCapture(e.pointerId);
+  }catch{}
+
   wheelPick(e);
 });
 
 $('wheel').addEventListener('pointermove',e=>{
-  if(e.buttons)wheelPick(e);
+  e.preventDefault();
+
+  if(
+    e.buttons===1 ||
+    e.pressure>0 ||
+    e.pointerType==='touch'
+  ){
+    wheelPick(e);
+  }
 });
 
-$('brightness').addEventListener('input',()=>{
-  setTarget(hsvToRgb(
-    wheelHue,wheelSat,Number($('brightness').value)
-  ));
+$('wheel').addEventListener('pointerup',e=>{
+  try{
+    $('wheel').releasePointerCapture(e.pointerId);
+  }catch{}
+});
 
-  $('wheelHex').textContent='Selected: '+targets[editIndex];
+$('wheel').addEventListener('pointercancel',e=>{
+  try{
+    $('wheel').releasePointerCapture(e.pointerId);
+  }catch{}
+});
+
+
+$('brightness').addEventListener('input',()=>{
+  const h=hsvToRgb(
+    wheelHue,
+    wheelSat,
+    Number($('brightness').value)
+  );
+
+  setTarget(h);
+
+  $('wheelHex').textContent=
+    'Selected: '+targets[editIndex];
+
   drawWheel();
 });
 
@@ -857,6 +987,10 @@ function setCameraStatus(text){
   $('cameraStatus').textContent=text;
 }
 
+
+/*
+  Completely release the camera.
+*/
 function stopCamera(){
   cameraGeneration++;
 
@@ -892,6 +1026,10 @@ function stopCamera(){
   $('startBtn').disabled=false;
 }
 
+
+/*
+  Get all camera devices exposed by the browser.
+*/
 async function refreshCameras(){
   if(!navigator.mediaDevices?.enumerateDevices){
     $('cameraSelectRow').style.display='none';
@@ -945,26 +1083,26 @@ async function refreshCameras(){
 }
 
 
-/* =========================================================
-   ONLY CHANGE RELATED TO THE SAMPLING POSITION:
-   Make the camera preview have exactly the same aspect ratio
-   as the real video frame.
+/*
+  Make the camera box use exactly the same aspect ratio
+  as the actual video stream.
 
-   This removes the 16:9 crop mismatch.
-   ========================================================= */
-
+  This prevents the preview from being cropped or letterboxed.
+*/
 function syncCameraAspectRatio(){
   const v=$('video');
+  const box=$('cameraBox');
 
-  if(!v.videoWidth || !v.videoHeight){
-    return;
+  if(v.videoWidth && v.videoHeight){
+    box.style.aspectRatio=
+      `${v.videoWidth}/${v.videoHeight}`;
   }
-
-  $('cameraBox').style.aspectRatio=
-    `${v.videoWidth}/${v.videoHeight}`;
 }
 
 
+/*
+  Start a camera.
+*/
 async function startCamera(deviceId=''){
   if(!navigator.mediaDevices?.getUserMedia){
     setCameraStatus(
@@ -997,6 +1135,7 @@ async function startCamera(deviceId=''){
 
     $('video').srcObject=null;
 
+
     let constraints;
 
     if(deviceId){
@@ -1018,8 +1157,10 @@ async function startCamera(deviceId=''){
       };
     }
 
+
     const newStream=
       await navigator.mediaDevices.getUserMedia(constraints);
+
 
     if(
       generation!==cameraGeneration ||
@@ -1033,6 +1174,7 @@ async function startCamera(deviceId=''){
 
       return;
     }
+
 
     stream=newStream;
 
@@ -1050,45 +1192,13 @@ async function startCamera(deviceId=''){
       currentCameraId=deviceId||null;
     }
 
+
     const v=$('video');
 
     v.srcObject=stream;
 
-    /*
-      Wait until the browser knows the real video dimensions.
-      Then make the preview box use exactly that ratio.
-    */
-    await new Promise(resolve=>{
-
-      if(v.readyState>=1 && v.videoWidth){
-        resolve();
-        return;
-      }
-
-      const onMetadata=()=>{
-        v.removeEventListener(
-          'loadedmetadata',
-          onMetadata
-        );
-
-        resolve();
-      };
-
-      v.addEventListener(
-        'loadedmetadata',
-        onMetadata
-      );
-
-    });
-
-    /*
-      This is the important part:
-      the camera display now has the same aspect ratio
-      as the original video frame.
-    */
-    syncCameraAspectRatio();
-
     await v.play();
+
 
     if(
       generation!==cameraGeneration ||
@@ -1098,13 +1208,14 @@ async function startCamera(deviceId=''){
       return;
     }
 
-    v.style.display='block';
 
     /*
-      Sync once more after play in case Safari updates
-      the video dimensions during startup.
+      Synchronize the camera container with the actual
+      video frame before displaying the preview.
     */
     syncCameraAspectRatio();
+
+    v.style.display='block';
 
     $('cameraPrompt').classList.add('hidden');
     $('aim').style.display='block';
@@ -1114,11 +1225,13 @@ async function startCamera(deviceId=''){
     $('stopBtn').disabled=false;
     $('startBtn').disabled=false;
 
+
     await refreshCameras();
 
     if(currentCameraId){
       $('cameraSelect').value=currentCameraId;
     }
+
 
     const settings=
       track?.getSettings?.() || {};
@@ -1134,6 +1247,7 @@ async function startCamera(deviceId=''){
       (resolution ? ' · '+resolution : '')+
       '. Aim the center point at a color.'
     );
+
 
     if(track){
       track.addEventListener('ended',()=>{
@@ -1166,12 +1280,20 @@ async function startCamera(deviceId=''){
   }
 }
 
+
+/*
+  Start button
+*/
 $('startBtn').addEventListener('click',()=>{
   const selectedId=$('cameraSelect').value || '';
 
   startCamera(selectedId);
 });
 
+
+/*
+  Camera selector.
+*/
 $('cameraSelect').addEventListener('change',async()=>{
   const id=$('cameraSelect').value;
 
@@ -1182,16 +1304,29 @@ $('cameraSelect').addEventListener('change',async()=>{
   await startCamera(id);
 });
 
+
+/*
+  Manually refresh camera list.
+*/
 $('refreshCameras').addEventListener(
   'click',
   refreshCameras
 );
 
+
+/*
+  Manual Stop Camera button.
+*/
 $('stopBtn').addEventListener('click',()=>{
   stopCamera();
   setCameraStatus('Camera is off.');
 });
 
+
+/*
+  If the OS/browser adds or removes a camera,
+  update the list.
+*/
 if(navigator.mediaDevices?.addEventListener){
   navigator.mediaDevices.addEventListener(
     'devicechange',
@@ -1199,6 +1334,10 @@ if(navigator.mediaDevices?.addEventListener){
   );
 }
 
+
+/*
+  Automatically release camera when leaving page.
+*/
 function releaseCameraOnExit(){
   stopCamera();
 }
@@ -1222,49 +1361,28 @@ window.addEventListener(
   releaseCameraOnExit
 );
 
+
+/*
+  Initial camera enumeration.
+*/
 refreshCameras();
 
 
-/* =========================================================
-   EXACT CENTER PIXEL
-   =========================================================
+/*
+  Exact center pixel.
 
-   这里是第二个、也是最核心的修改。
-
-   原来：
-   - 根据 video 显示尺寸
-   - 计算 object-fit:cover 的裁切区域
-   - 再反推原始视频坐标
-
-   现在：
-   - 预览已经不再裁切
-   - 直接读取原始视频画面中心
-   - 只读取 1 个像素
-
-   因此：
-   屏幕圆圈中心
-   =
-   video 画面中心
-   =
-   video 原始帧中心
-   =
-   实际 Sample Color 像素
-   ========================================================= */
-
+  The camera preview shows the full video frame
+  without cropping, so the visual center and the
+  sampled video-frame center are the same point.
+*/
 function readVideoCenter(video){
-
   const vw=video.videoWidth;
   const vh=video.videoHeight;
 
-  if(!vw || !vh){
-    throw new Error(
-      'Video dimensions are not ready.'
-    );
+  if(!vw||!vh){
+    throw new Error('Video dimensions are not ready.');
   }
 
-  /*
-    原始视频画面的正中心。
-  */
   const x=Math.floor(vw/2);
   const y=Math.floor(vh/2);
 
@@ -1277,19 +1395,10 @@ function readVideoCenter(video){
     willReadFrequently:true
   });
 
-  /*
-    从原始视频中心只取 1×1 像素。
-  */
   ctx.drawImage(
     video,
-    x,
-    y,
-    1,
-    1,
-    0,
-    0,
-    1,
-    1
+    x,y,1,1,
+    0,0,1,1
   );
 
   const p=
@@ -1308,10 +1417,9 @@ function readVideoCenter(video){
 }
 
 
-/* =========================================================
-   SAMPLE COLOR
-   ========================================================= */
-
+/*
+  Sample exact center pixel.
+*/
 $('sampleBtn').addEventListener('click',()=>{
   const v=$('video');
 
@@ -1483,7 +1591,16 @@ function loadHistory(){
     return;
   }
 
-  arr.slice().reverse().forEach(item=>{
+  arr.slice().reverse().forEach((item,reverseIndex)=>{
+
+    /*
+      reverseIndex is the position in the displayed array.
+      Convert it back to the original array index so that
+      deleting one item does not affect the others.
+    */
+    const originalIndex=
+      arr.length-1-reverseIndex;
+
     const d=document.createElement('div');
 
     d.className='historyitem';
@@ -1495,6 +1612,8 @@ function loadHistory(){
 
     const txt=document.createElement('span');
 
+    txt.className='historytext';
+
     txt.textContent=
       item.sample+
       ' → '+
@@ -1504,10 +1623,73 @@ function loadHistory(){
       '% · '+
       item.date;
 
-    d.append(sw,txt);
+    const deleteBtn=
+      document.createElement('button');
+
+    deleteBtn.className=
+      'secondary deleteHistory';
+
+    deleteBtn.type='button';
+    deleteBtn.textContent='Delete';
+
+    deleteBtn.addEventListener('click',()=>{
+      deleteHistoryItem(originalIndex);
+    });
+
+    d.append(
+      sw,
+      txt,
+      deleteBtn
+    );
 
     $('history').append(d);
   });
+}
+
+
+/*
+  Delete one saved find.
+*/
+function deleteHistoryItem(index){
+  let arr=[];
+
+  try{
+    arr=JSON.parse(
+      localStorage.getItem(
+        'colorwalk-history'
+      )||'[]'
+    );
+  }catch{}
+
+  if(
+    !Number.isInteger(index) ||
+    index<0 ||
+    index>=arr.length
+  ){
+    return;
+  }
+
+  arr.splice(index,1);
+
+  try{
+
+    localStorage.setItem(
+      'colorwalk-history',
+      JSON.stringify(arr)
+    );
+
+    loadHistory();
+
+    setCameraStatus(
+      'Saved find deleted.'
+    );
+
+  }catch{
+
+    setCameraStatus(
+      'Could not update history in this browser.'
+    );
+  }
 }
 
 
