@@ -1,117 +1,522 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#172019">
 <title>ColorWalk</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f3ef;color:#171717;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
-.app{max-width:720px;margin:auto;min-height:100vh;padding-bottom:28px}.top{padding:22px 18px 12px;display:flex;align-items:center;justify-content:space-between}.brand{font-size:28px;font-weight:800;letter-spacing:-.8px}.sub{font-size:12px;color:#777;margin-top:2px}.icon{border:0;background:#fff;border-radius:14px;width:44px;height:44px;font-size:20px;box-shadow:0 2px 12px #0001}
-.tabs{display:flex;gap:8px;padding:8px 18px}.tab{flex:1;padding:12px;border:1px solid #ddd;border-radius:14px;background:#fff;font-weight:700}.tab.on{background:#171717;color:#fff}
-.camera{margin:10px 18px 0;background:#111;border-radius:26px;overflow:hidden;position:relative;aspect-ratio:3/4}.camera video{width:100%;height:100%;object-fit:cover;display:block}.shade{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.ring{width:120px;height:120px;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #0006,0 0 30px #0005}.hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:#0009;color:#fff;padding:7px 12px;border-radius:99px;font-size:12px;white-space:nowrap}
-.row{display:flex;gap:10px;padding:14px 18px 0}.card{flex:1;background:#fff;border-radius:20px;padding:12px;box-shadow:0 2px 12px #0000000d}.swatch{height:68px;border-radius:14px;margin-bottom:10px}.name{font-weight:800;font-size:15px}.hex{font:12px ui-monospace,monospace;color:#777;margin-top:3px}.focus{outline:3px solid #171717;outline-offset:2px}
-.results{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 18px}.result{background:#fff;border-radius:18px;padding:14px}.result h3{font-size:13px;margin:0 0 8px;color:#777}.pct{font-size:30px;font-weight:850}.dist{font-size:12px;color:#777;margin-top:3px}
-.controls{display:flex;gap:8px;padding:4px 18px}.btn{flex:1;border:0;border-radius:15px;padding:13px;background:#171717;color:#fff;font-weight:750}.btn.alt{background:#fff;color:#171717;border:1px solid #ddd}.btn:disabled{opacity:.4}
-.challenge{margin:14px 18px;background:#fff;border-radius:20px;padding:15px}.challengeTop{display:flex;justify-content:space-between;align-items:center}.challengeColor{height:54px;border-radius:13px;margin-top:10px}.small{font-size:12px;color:#777}.section{padding:18px}.section h2{font-size:18px;margin:0 0 10px}.find{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px;margin-top:8px}.mini{width:42px;height:42px;border-radius:10px}.empty{color:#888;font-size:13px;background:#fff;border-radius:14px;padding:15px}
-.drawer{position:fixed;inset:0;background:#0007;display:none;align-items:flex-end;z-index:10}.drawer.open{display:flex}.sheet{width:100%;max-height:88vh;overflow:auto;background:#f5f3ef;border-radius:26px 26px 0 0;padding:18px}.sheetHead{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#fff;border-radius:12px;padding:9px 12px}.input{width:100%;border:1px solid #ddd;border-radius:13px;padding:12px;background:#fff;font-size:15px;margin:10px 0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.colorOpt{border:0;border-radius:12px;overflow:hidden;background:#fff;text-align:left;padding:0}.colorOpt .c{height:42px}.colorOpt span{display:block;padding:7px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.picker{height:150px;border-radius:14px;background:linear-gradient(to bottom,transparent,#000),linear-gradient(to right,#fff,transparent),hsl(0 100% 50%);position:relative;overflow:hidden}.pickDot{position:absolute;width:18px;height:18px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #0008;left:80%;top:20%}.hue{width:100%;margin:10px 0}.rgb{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.saveRow{display:flex;gap:8px}.note{font-size:11px;color:#888;padding:12px 18px 0;text-align:center}
-@media(min-width:650px){.app{padding-top:20px}}
+:root {
+  --bg:#f4f1e8;
+  --ink:#1d2a20;
+  --muted:#687568;
+  --green:#314d35;
+  --card:#fffdf7;
+  --line:#e2e3d8;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+header {
+  background:#172019;color:#f7f4e9;
+  padding:25px 18px 27px;
+  border-radius:0 0 28px 28px;
+}
+.top,main {max-width:760px;margin:auto}
+.eyebrow {font-size:12px;letter-spacing:.14em;color:#c3d4ae}
+h1 {font-size:34px;line-height:1.05;margin:8px 0}
+.sub {color:#d0d8cc;margin:8px 0 0}
+main {padding:16px 14px 35px;display:grid;gap:14px}
+.card {
+  background:var(--card);border:1px solid var(--line);
+  border-radius:20px;padding:16px;
+  box-shadow:0 5px 18px #263b2810;
+}
+h2 {font-size:17px;margin:0 0 12px}
+.muted {color:var(--muted);font-size:13px}
+button,input,select {font:inherit}
+button {
+  border:0;border-radius:13px;padding:12px 15px;
+  background:var(--green);color:white;font-weight:650;
+  cursor:pointer;min-height:46px;
+}
+button.secondary {background:#e9eddf;color:var(--ink)}
+button:disabled {opacity:.45;cursor:not-allowed}
+.row {display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.row>* {flex:1;min-width:0}
+.camera {
+  position:relative;overflow:hidden;background:#111;
+  border-radius:16px;aspect-ratio:4/3;
+  display:grid;place-items:center;color:white;
+}
+video {width:100%;height:100%;object-fit:cover;display:none}
+.aim {
+  position:absolute;width:76px;height:76px;
+  border:2px solid white;border-radius:50%;
+  box-shadow:0 0 0 999px #0002;pointer-events:none;display:none;
+}
+.aim:after {
+  content:"";position:absolute;inset:33px;
+  background:white;border-radius:50%;
+}
+.camera-note {
+  position:absolute;bottom:10px;left:12px;right:12px;
+  text-align:center;font-size:12px;color:white;
+  text-shadow:0 1px 4px #0008;pointer-events:none;
+}
+.swatches {display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.swatch {
+  height:82px;border-radius:13px;border:1px solid #0001;
+  display:flex;align-items:end;padding:9px;
+  color:white;text-shadow:0 1px 4px #0008;font-weight:700;
+}
+.mode {
+  display:flex;background:#edf0e6;padding:4px;
+  border-radius:13px;gap:4px;
+}
+.mode button {
+  flex:1;background:transparent;color:var(--muted);
+  padding:10px 6px;
+}
+.mode button.active {background:white;color:var(--ink);box-shadow:0 2px 7px #0001}
+.metric {background:#f0f2e9;border-radius:14px;padding:13px}
+.metric strong {font-size:25px;display:block}
+.meter {height:8px;background:#dfe4d6;border-radius:20px;overflow:hidden;margin-top:8px}
+.meter i {display:block;height:100%;background:#66844c;width:0}
+.resultgrid {display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.targetline {display:flex;gap:10px;align-items:center}
+.dot {width:35px;height:35px;border-radius:10px;border:1px solid #0002;flex:none}
+input[type=text] {
+  width:100%;padding:12px;border:1px solid var(--line);
+  border-radius:12px;background:white;color:var(--ink);
+}
+input[type=color] {width:48px;height:44px;border:0;background:transparent;padding:0}
+.history {display:grid;gap:8px}
+.historyitem {
+  display:flex;align-items:center;gap:9px;padding:8px;
+  background:#f4f4ed;border-radius:11px;font-size:13px;
+}
+.hidden {display:none!important}
+footer {text-align:center;color:var(--muted);font-size:12px;padding:8px}
+@media(min-width:600px) {
+  main {grid-template-columns:1fr 1fr}
+  .wide {grid-column:1/-1}
+}
 </style>
 </head>
-<body>
-<div class="app">
-  <header class="top"><div><div class="brand">ColorWalk</div><div class="sub">Walk around. Find a color.</div></div><button class="icon" id="randomBtn">✦</button></header>
 
-  <div class="tabs">
-    <button class="tab on" id="bothTab">Compare Both</button>
-    <button class="tab" id="focusTab">Focus One</button>
+<body>
+<header>
+  <div class="top">
+    <div class="eyebrow">A LITTLE FIELD GUIDE TO COLOR</div>
+    <h1>ColorWalk ✳</h1>
+    <p class="sub">Point, sample, compare. Find the color hiding in plain sight.</p>
   </div>
+</header>
+
+<main>
+
+<section class="card wide">
+  <h2>01 / Camera</h2>
 
   <div class="camera">
-    <video id="video" autoplay playsinline muted></video>
-    <div class="shade"><div class="ring"></div></div>
-    <div class="hint" id="hint">Allow camera access, then point at a color</div>
+    <video id="video" playsinline muted></video>
+    <div id="cameraPrompt">Tap “Start Camera” to allow camera access.</div>
+    <div class="aim" id="aim"></div>
+    <div class="camera-note" id="cameraNote">
+      Center the circle over the color you want to sample
+    </div>
   </div>
 
+  <div class="row" style="margin-top:11px">
+    <button id="startBtn">Start Camera</button>
+    <button id="sampleBtn" class="secondary" disabled>Sample Color</button>
+    <button id="stopBtn" class="secondary" disabled>Stop</button>
+  </div>
+
+  <p class="muted" id="cameraStatus" aria-live="polite">
+    Camera is off. Camera access is requested only when you tap Start Camera.
+  </p>
+</section>
+
+<section class="card">
+  <h2>02 / Compare</h2>
+
+  <div class="mode">
+    <button id="bothBtn" class="active">Compare Both</button>
+    <button id="focusBtn">Focus One</button>
+  </div>
+
+  <div class="swatches" style="margin-top:12px">
+    <div class="swatch" id="sampleSwatch" style="background:#9aa08d">
+      Sample · #9AA08D
+    </div>
+    <div class="swatch" id="targetSwatch" style="background:#687A45">
+      Target · #687A45
+    </div>
+  </div>
+
+  <div class="resultgrid" style="margin-top:10px">
+    <div class="metric">
+      <span class="muted">Color match</span>
+      <strong id="match">—%</strong>
+      <div class="meter"><i id="meter"></i></div>
+    </div>
+    <div class="metric">
+      <span class="muted">Color distance</span>
+      <strong id="distance">—</strong>
+      <span class="muted">Approximate, lower is closer</span>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>03 / Choose target</h2>
+
+  <div class="targetline">
+    <div class="dot" id="targetDot" style="background:#687A45"></div>
+    <div style="flex:1">
+      <strong id="targetName">Moss Green</strong>
+      <div class="muted" id="targetHex">#687A45</div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <select id="preset" aria-label="Color presets">
+      <option value="#687A45">Moss Green</option>
+      <option value="#A34F38">Rust Red</option>
+      <option value="#D8B56A">Golden Sand</option>
+      <option value="#547C8C">Rainy Blue</option>
+      <option value="#B77D91">Dusty Rose</option>
+      <option value="#E7DCC5">Warm Ivory</option>
+      <option value="#344438">Forest Shade</option>
+      <option value="#D97842">Persimmon</option>
+    </select>
+    <input type="color" id="picker" value="#687a45" aria-label="Choose target color">
+  </div>
+
+  <div class="row" style="margin-top:9px">
+    <input type="text" id="hexInput" placeholder="#687A45" value="#687A45" aria-label="Enter HEX color">
+    <button id="applyHex" class="secondary">Use HEX</button>
+  </div>
+</section>
+
+<section class="card">
+  <h2>04 / Color challenge</h2>
+  <p class="muted">Find something nearby that resembles a surprise color.</p>
+  <div class="swatch" id="challengeSwatch" style="background:#A34F38;margin-bottom:10px">
+    Surprise · Rust Red
+  </div>
   <div class="row">
-    <div class="card" id="card0"><div class="swatch" id="sw0"></div><div class="name" id="name0"></div><div class="hex" id="hex0"></div></div>
-    <div class="card" id="card1"><div class="swatch" id="sw1"></div><div class="name" id="name1"></div><div class="hex" id="hex1"></div></div>
+    <button id="randomBtn">New challenge</button>
+    <button id="useChallenge" class="secondary">Use as target</button>
   </div>
+</section>
 
-  <div class="results">
-    <div class="result" id="res0"><h3 id="rname0"></h3><div class="pct" id="pct0">—%</div><div class="dist" id="dist0">Distance —</div></div>
-    <div class="result" id="res1"><h3 id="rname1"></h3><div class="pct" id="pct1">—%</div><div class="dist" id="dist1">Distance —</div></div>
+<section class="card wide">
+  <h2>05 / Save a find</h2>
+  <div class="row">
+    <button id="saveBtn">Save Find</button>
+    <button id="clearBtn" class="secondary">Clear History</button>
   </div>
-
-  <div class="controls">
-    <button class="btn alt" id="edit0">Color 1</button>
-    <button class="btn alt" id="edit1">Color 2</button>
-    <button class="btn" id="freeze">Freeze</button>
-    <button class="btn" id="save">Save Find</button>
+  <div class="history" id="history" style="margin-top:10px">
+    <div class="muted">No saved finds yet.</div>
   </div>
+</section>
 
-  <div class="challenge">
-    <div class="challengeTop"><strong>Random Color Challenge</strong><button class="btn alt" id="newChallenge" style="flex:0;padding:9px 12px">New</button></div>
-    <div class="small">Try to find something around you that matches this color.</div>
-    <div class="challengeColor" id="challengeColor"></div>
-    <div style="margin-top:8px"><strong id="challengeName">—</strong> <span class="small" id="challengeHex"></span></div>
-  </div>
+<footer class="wide">
+  ColorWalk is a playful visual comparison tool, not a calibrated colorimeter.
+  Lighting and your screen affect results. Camera frames are processed in your
+  browser and are not uploaded.
+</footer>
 
-  <section class="section"><h2>My Finds</h2><div id="history"></div><button class="btn alt" id="clearHistory" style="margin-top:10px;width:100%">Clear History</button></section>
-  <div class="note">ColorWalk is a playful visual matching tool — not a calibrated colorimeter.</div>
-</div>
-
-<div class="drawer" id="drawer">
-  <div class="sheet">
-    <div class="sheetHead"><h2 id="sheetTitle">Choose Color</h2><button class="close" id="close">Done</button></div>
-    <input class="input" id="search" placeholder="Search a standard color name…">
-    <div class="grid" id="colorGrid"></div>
-    <h3>Custom color</h3>
-    <input class="input" id="hexInput" placeholder="#687A45">
-    <div class="rgb"><input class="input" id="ri" type="number" min="0" max="255" placeholder="R"><input class="input" id="gi" type="number" min="0" max="255" placeholder="G"><input class="input" id="bi" type="number" min="0" max="255" placeholder="B"></div>
-    <h3>Color Picker</h3>
-    <div class="picker" id="picker"><div class="pickDot" id="pickDot"></div></div>
-    <input class="hue" id="hue" type="range" min="0" max="360" value="0">
-    <div class="saveRow"><button class="btn alt" id="applyRGB">Use RGB</button><button class="btn" id="applyHex">Use HEX</button></div>
-  </div>
-</div>
-<canvas id="canvas" style="display:none"></canvas>
+</main>
 
 <script>
-const colors=[
-["Black","#000000"],["White","#FFFFFF"],["Red","#FF0000"],["Green","#008000"],["Blue","#0000FF"],["Yellow","#FFFF00"],["Orange","#FFA500"],["Purple","#800080"],["Pink","#FFC0CB"],["Brown","#A52A2A"],["Gray","#808080"],["Navy","#000080"],["Teal","#008080"],["Olive","#808000"],["Lime","#00FF00"],["Aqua","#00FFFF"],["Maroon","#800000"],["Silver","#C0C0C0"],["Gold","#FFD700"],["Ivory","#FFFFF0"],["Coral","#FF7F50"],["Tomato","#FF6347"],["Salmon","#FA8072"],["Crimson","#DC143C"],["Burgundy","#800020"],["Brick Red","#CB4154"],["Rust","#B7410E"],["Rust Red","#A34F38"],["Terracotta","#E2725B"],["Ochre","#CC7722"],["Moss Green","#687A45"],["Forest Green","#228B22"],["Forest Moss","#556B2F"],["Sage","#9CAF88"],["Mint","#98FF98"],["Emerald","#50C878"],["Jade","#00A86B"],["Sky Blue","#87CEEB"],["Cobalt Blue","#0047AB"],["Indigo","#4B0082"],["Lavender","#E6E6FA"],["Plum","#DDA0DD"],["Mustard","#FFDB58"],["Beige","#F5F5DC"],["Cream","#FFFDD0"],["Charcoal","#36454F"]
-];
-let targets=[{name:"Moss Green",hex:"#687A45"},{name:"Rust Red",hex:"#A34F38"}],mode="both",focus=0,stream=null,frozen=false,editing=0,challenge=null;
-const $=id=>document.getElementById(id);
-function hexToRgb(h){h=h.replace("#","");if(h.length===3)h=h.split("").map(x=>x+x).join("");return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
-function rgbToHex(r,g,b){return "#"+[r,g,b].map(x=>Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,"0")).join("").toUpperCase()}
-function setTarget(i,name,hex){targets[i]={name,hex:hex.toUpperCase()};renderTargets()}
-function renderTargets(){targets.forEach((t,i)=>{$("sw"+i).style.background=t.hex;$("name"+i).textContent=t.name;$("hex"+i).textContent=t.hex;$("rname"+i).textContent=t.name});$("card0").classList.toggle("focus",mode==="focus"&&focus===0);$("card1").classList.toggle("focus",mode==="focus"&&focus===1);$("res0").style.display=mode==="both"||focus===0?"block":"none";$("res1").style.display=mode==="both"||focus===1?"block":"none")}
-function rgbToOklab(rgb){let [r,g,b]=rgb.map(v=>v/255);r=r<=.04045?r/12.92:Math.pow((r+.055)/1.055,2.4);g=g<=.04045?g/12.92:Math.pow((g+.055)/1.055,2.4);b=b<=.04045?b/12.92:Math.pow((b+.055)/1.055,2.4);let l=.4122214708*r+.5363325363*g+.0514459929*b,m=.2119034982*r+.6806995451*g+.1073969566*b,s=.0883024619*r+.2817188376*g+.6299787005*b;l=Math.cbrt(l);m=Math.cbrt(m);s=Math.cbrt(s);return [.2104542553*l+.793617785*m-.0040720468*s,1.9779984951*l-2.428592205*m+.4505937099*s,.0259040371*l+.7827717662*m-.808675766*s]}
-function distance(a,b){let A=rgbToOklab(a),B=rgbToOklab(b);return Math.sqrt((A[0]-B[0])**2+(A[1]-B[1])**2+(A[2]-B[2])**2)}
-function match(a,b){return Math.max(0,Math.min(100,100*(1-distance(a,b)/.35)))}
-async function startCamera(){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false});$("video").srcObject=stream;$("hint").textContent="Point the center circle at a color"}catch(e){$("hint").textContent="Camera access was not allowed"}}
-function sample(){if(frozen||!stream)return;let v=$("video"),c=$("canvas"),ctx=c.getContext("2d",{willReadFrequently:true});let s=Math.min(v.videoWidth,v.videoHeight)*.16;if(!s)return;c.width=Math.round(s*2);c.height=Math.round(s*2);ctx.drawImage(v,(v.videoWidth-s)/2,(v.videoHeight-s)/2,s,s,0,0,c.width,c.height);let d=ctx.getImageData(0,0,c.width,c.height).data,sum=[0,0,0],n=0,cx=c.width/2,cy=c.height/2,r=c.width*.48;for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){if((x-cx)**2+(y-cy)**2<r*r){let p=(y*c.width+x)*4;sum[0]+=d[p];sum[1]+=d[p+1];sum[2]+=d[p+2];n++}}let rgb=sum.map(x=>x/n);targets.forEach((t,i)=>{let tar=hexToRgb(t.hex),dist=distance(rgb,tar);$("pct"+i).textContent=match(rgb,tar).toFixed(0)+"%";$("dist"+i).textContent="Distance "+dist.toFixed(3)});}
-function openDrawer(i){editing=i;$("sheetTitle").textContent="Choose Color "+(i+1);$("drawer").classList.add("open");$("search").value="";renderColorGrid()}
-function renderColorGrid(){let q=$("search").value.toLowerCase();$("colorGrid").innerHTML="";colors.filter(x=>x[0].toLowerCase().includes(q)).forEach(([n,h])=>{let b=document.createElement("button");b.className="colorOpt";b.innerHTML='<div class="c" style="background:'+h+'"></div><span>'+n+"</span>";b.onclick=()=>{setTarget(editing,n,h);$("drawer").classList.remove("open")};$("colorGrid").appendChild(b)})}
-function hsvToHex(h,s,v){let f=(n,k=(n+h/60)%6)=>v-v*s*Math.max(Math.min(k,4-k,1),0),r=f(5),g=f(3),b=f(1);return rgbToHex(r*255,g*255,b*255)}
-function newChallenge(){challenge=colors[Math.floor(Math.random()*colors.length)];$("challengeColor").style.background=challenge[1];$("challengeName").textContent=challenge[0];$("challengeHex").textContent=challenge[1]}
-function historyRender(){let h=JSON.parse(localStorage.getItem("colorwalk-history")||"[]");$("history").innerHTML=h.length?h.map(x=>'<div class="find"><div class="mini" style="background:'+x.actual+'"></div><div><strong>'+x.target+'</strong><div class="small">'+x.actual+" · "+x.match+"% match · "+x.time+"</div></div></div>").join(""):'<div class="empty">No saved finds yet.</div>'}
-$("bothTab").onclick=()=>{mode="both";$("bothTab").classList.add("on");$("focusTab").classList.remove("on");renderTargets()}
-$("focusTab").onclick=()=>{mode="focus";$("focusTab").classList.add("on");$("bothTab").classList.remove("on");renderTargets()}
-$("card0").onclick=()=>{focus=0;renderTargets()};$("card1").onclick=()=>{focus=1;renderTargets()};$("edit0").onclick=()=>openDrawer(0);$("edit1").onclick=()=>openDrawer(1);
-$("close").onclick=()=>$("drawer").classList.remove("open");$("search").oninput=renderColorGrid;
-$("applyHex").onclick=()=>{let h=$("hexInput").value.trim();if(/^#?[0-9a-f]{6}$/i.test(h)){h=h.startsWith("#")?h:"#"+h;setTarget(editing,"Custom",h);$("drawer").classList.remove("open")}}
-$("applyRGB").onclick=()=>{let r=+$("ri").value,g=+$("gi").value,b=+$("bi").value;if([r,g,b].every(x=>x>=0&&x<=255)){setTarget(editing,"Custom",rgbToHex(r,g,b));$("drawer").classList.remove("open")}}
-$("picker").onclick=e=>{let r=e.currentTarget.getBoundingClientRect(),s=(e.clientX-r.left)/r.width,v=1-(e.clientY-r.top)/r.height,h=+$("hue").value;let hex=hsvToHex(h,s,v);setTarget(editing,"Custom",hex);$("hexInput").value=hex;$("ri").value=hexToRgb(hex)[0];$("gi").value=hexToRgb(hex)[1];$("bi").value=hexToRgb(hex)[2];$("pickDot").style.left=(s*100)+"%";$("pickDot").style.top=((1-v)*100)+"%"}
-$("hue").oninput=e=>$("picker").style.background="linear-gradient(to bottom,transparent,#000),linear-gradient(to right,#fff,transparent),hsl("+e.target.value+" 100% 50%)";
-$("freeze").onclick=()=>{frozen=!frozen;$("freeze").textContent=frozen?"Continue":"Freeze"};
-$("save").onclick=()=>{let h=JSON.parse(localStorage.getItem("colorwalk-history")||"[]"),idx=mode==="focus"?focus:0;let actual=$("pct"+idx).textContent==="—%"?"":$("pct"+idx).textContent.replace("%","");if(!actual)return;let now=new Date();let rec={target:targets[idx].name,actual:targets[idx].hex,match:actual,time:now.toLocaleString()};h.unshift(rec);localStorage.setItem("colorwalk-history",JSON.stringify(h.slice(0,50)));historyRender()}
-$("clearHistory").onclick=()=>{localStorage.removeItem("colorwalk-history");historyRender()};$("newChallenge").onclick=newChallenge;$("randomBtn").onclick=newChallenge;
-renderTargets();renderColorGrid();historyRender();newChallenge();startCamera();setInterval(sample,350);
+(() => {
+'use strict';
+
+const $ = id => document.getElementById(id);
+
+const names = {
+  '#687A45':'Moss Green',
+  '#A34F38':'Rust Red',
+  '#D8B56A':'Golden Sand',
+  '#547C8C':'Rainy Blue',
+  '#B77D91':'Dusty Rose',
+  '#E7DCC5':'Warm Ivory',
+  '#344438':'Forest Shade',
+  '#D97842':'Persimmon'
+};
+
+let target = '#687A45';
+let sample = '#9AA08D';
+let stream = null;
+
+function rgb(h) {
+  return [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+}
+
+function hex(r,g,b) {
+  return '#' + [r,g,b].map(x =>
+    Math.max(0,Math.min(255,Math.round(x)))
+      .toString(16).padStart(2,'0')
+  ).join('').toUpperCase();
+}
+
+function render() {
+  $('sampleSwatch').style.background = sample;
+  $('sampleSwatch').textContent = 'Sample · ' + sample;
+
+  $('targetSwatch').style.background = target;
+  $('targetSwatch').textContent = 'Target · ' + target;
+
+  const a = rgb(sample);
+  const b = rgb(target);
+
+  const d = Math.sqrt(
+    (a[0]-b[0])**2 +
+    (a[1]-b[1])**2 +
+    (a[2]-b[2])**2
+  );
+
+  const pct = Math.max(
+    0,
+    Math.round(100 * (1-d/(Math.sqrt(3)*255)))
+  );
+
+  $('match').textContent = pct + '%';
+  $('distance').textContent = Math.round(d);
+  $('meter').style.width = pct + '%';
+}
+
+function setTarget(h) {
+  target = h.toUpperCase();
+  $('targetDot').style.background = target;
+  $('targetHex').textContent = target;
+  $('targetName').textContent = names[target] || 'Custom Color';
+  $('picker').value = target;
+  $('hexInput').value = target;
+  render();
+}
+
+$('preset').addEventListener('change', e => setTarget(e.target.value));
+$('picker').addEventListener('input', e => setTarget(e.target.value));
+
+$('applyHex').addEventListener('click', () => {
+  const h = $('hexInput').value.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(h)) {
+    setTarget(h);
+  } else {
+    alert('Please enter a HEX color like #687A45.');
+  }
+});
+
+$('startBtn').addEventListener('click', async () => {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    $('cameraStatus').textContent =
+      'Camera access is unavailable. Open this page in Safari over HTTPS.';
+    return;
+  }
+
+  try {
+    $('cameraStatus').textContent = 'Waiting for camera permission…';
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {facingMode:{ideal:'environment'}},
+      audio: false
+    });
+
+    $('video').srcObject = stream;
+    await $('video').play();
+
+    $('video').style.display = 'block';
+    $('cameraPrompt').classList.add('hidden');
+    $('aim').style.display = 'block';
+
+    $('sampleBtn').disabled = false;
+    $('stopBtn').disabled = false;
+    $('startBtn').disabled = true;
+
+    $('cameraStatus').textContent =
+      'Camera is on. Place the center circle over a color, then tap Sample Color.';
+  } catch (err) {
+    $('cameraStatus').textContent =
+      err.name === 'NotAllowedError'
+      ? 'Camera permission was denied. Allow camera access in browser settings, then tap Start Camera again.'
+      : 'Could not start camera: ' + err.message;
+  }
+});
+
+function stopCamera() {
+  if (stream) stream.getTracks().forEach(track => track.stop());
+
+  stream = null;
+  $('video').srcObject = null;
+  $('video').style.display = 'none';
+  $('aim').style.display = 'none';
+
+  $('cameraPrompt').classList.remove('hidden');
+  $('cameraPrompt').textContent =
+    'Camera stopped. Tap Start Camera to begin again.';
+
+  $('sampleBtn').disabled = true;
+  $('stopBtn').disabled = true;
+  $('startBtn').disabled = false;
+  $('cameraStatus').textContent = 'Camera is off.';
+}
+
+$('stopBtn').addEventListener('click', stopCamera);
+
+$('sampleBtn').addEventListener('click', () => {
+  const video = $('video');
+
+  if (!video.videoWidth) {
+    $('cameraStatus').textContent =
+      'Camera is still starting. Try again in a moment.';
+    return;
+  }
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
+  const x = Math.floor(canvas.width/2);
+  const y = Math.floor(canvas.height/2);
+  const r = Math.max(3,Math.floor(Math.min(canvas.width,canvas.height)*0.025));
+
+  const left = Math.max(0,x-r);
+  const top = Math.max(0,y-r);
+  const width = Math.min(2*r,canvas.width-left);
+  const height = Math.min(2*r,canvas.height-top);
+
+  const data = ctx.getImageData(left,top,width,height).data;
+
+  let rr=0,gg=0,bb=0,n=0;
+
+  for (let i=0;i<data.length;i+=4) {
+    rr+=data[i];
+    gg+=data[i+1];
+    bb+=data[i+2];
+    n++;
+  }
+
+  sample = hex(rr/n,gg/n,bb/n);
+  render();
+
+  $('cameraStatus').textContent =
+    'Sample captured: ' + sample + '. Tap Save Find to keep it.';
+});
+
+const challenges = Object.keys(names);
+
+function newChallenge() {
+  const h = challenges[Math.floor(Math.random()*challenges.length)];
+  $('challengeSwatch').style.background = h;
+  $('challengeSwatch').textContent = 'Surprise · ' + names[h];
+  $('challengeSwatch').dataset.hex = h;
+}
+
+$('randomBtn').addEventListener('click',newChallenge);
+
+$('useChallenge').addEventListener('click',() => {
+  const h = $('challengeSwatch').dataset.hex;
+  if (h) setTarget(h);
+});
+
+function loadHistory() {
+  let arr = [];
+
+  try {
+    arr = JSON.parse(localStorage.getItem('colorwalk-history') || '[]');
+  } catch {}
+
+  $('history').innerHTML = '';
+
+  if (!arr.length) {
+    $('history').textContent = 'No saved finds yet.';
+    $('history').className = 'history muted';
+    return;
+  }
+
+  $('history').className = 'history';
+
+  arr.slice().reverse().forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'historyitem';
+
+    const sw = document.createElement('span');
+    sw.className = 'dot';
+    sw.style.background = item.sample;
+
+    const txt = document.createElement('span');
+    txt.textContent =
+      item.sample + ' → ' + item.target + ' · ' +
+      item.match + '% · ' + item.date;
+
+    d.append(sw,txt);
+    $('history').append(d);
+  });
+}
+
+$('saveBtn').addEventListener('click',() => {
+  let arr = [];
+
+  try {
+    arr = JSON.parse(localStorage.getItem('colorwalk-history') || '[]');
+  } catch {}
+
+  const a = rgb(sample);
+  const b = rgb(target);
+
+  const d = Math.sqrt(
+    a.reduce((sum,x,i) => sum+(x-b[i])**2,0)
+  );
+
+  const match = Math.max(
+    0,
+    Math.round(100*(1-d/(Math.sqrt(3)*255)))
+  );
+
+  arr.push({
+    sample,
+    target,
+    match,
+    date:new Date().toLocaleString()
+  });
+
+  try {
+    localStorage.setItem(
+      'colorwalk-history',
+      JSON.stringify(arr.slice(-40))
+    );
+    loadHistory();
+    $('cameraStatus').textContent = 'Find saved on this device.';
+  } catch {
+    $('cameraStatus').textContent =
+      'Could not save history in this browser.';
+  }
+});
+
+$('clearBtn').addEventListener('click',() => {
+  if (confirm('Clear all saved finds on this device?')) {
+    localStorage.removeItem('colorwalk-history');
+    loadHistory();
+  }
+});
+
+setTarget(target);
+newChallenge();
+loadHistory();
+
+})();
 </script>
 </body>
 </html>
